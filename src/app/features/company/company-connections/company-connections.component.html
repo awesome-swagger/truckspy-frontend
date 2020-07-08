@@ -1,0 +1,73 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-left">Connections</div>
+        <div class="pull-right">
+            <a class="action-link" (click)="addConnection(addConnectionModal)">Add</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body no-padding override-child-dataTable-margin">
+        <sa-datatable [options]="optionsConnections" tableClass="table table-striped table-bordered table-hover"
+            #connectionsTable>
+            <thead>
+                <tr>
+                    <th class="col-sm-4">Name</th>
+                    <th class="col-sm-4">Type</th>
+                    <th class="col-sm-4">Status</th>
+                </tr>
+            </thead>
+        </sa-datatable>
+    </div>
+</div>
+
+<ng-template #addConnectionModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeConnectionModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Add Connection</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #addConnectionForm="ngForm"
+            (ngSubmit)="addConnectionForm.form.valid && createConnection()">
+            <div class="form-group">
+                <label class="col-sm-4" for="name">Connection Name</label>
+                <div class="col-sm-8" [ngClass]="{ 'has-error': addConnectionForm.submitted && nameInput.invalid }">
+                    <input class="input input-xs form-control" name="name" [(ngModel)]="connectionData.name"
+                        #nameInput="ngModel" required>
+
+                    <div *ngIf="addConnectionForm.submitted && nameInput.invalid" class="help-block">
+                        <div class="small" *ngIf="nameInput.errors.required">Please enter connection name
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="type">Connection type</label>
+                <div class="col-sm-8">
+                    <select style="width:100%" name="type" id="type" [(ngModel)]="connectionData.type" (ngModelChange)="onTypeChange($event)">
+                        <option *ngFor="let t of connectionTypes" [value]="t.type">{{t.type}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" *ngFor="let field of authFields">
+                <label class="col-sm-4" for="{{field}}">{{field | capitalize}}</label>
+                <div class="col-sm-8"
+                    [ngClass]="{ 'has-error': addConnectionForm.submitted && fieldInput.invalid }">
+                    <input class="input input-xs form-control" name="{{field}}"
+                        [(ngModel)]="connectionData.auth[field]" #fieldInput="ngModel" required>
+
+                    <div *ngIf="addConnectionForm.submitted && fieldInput.invalid" class="help-block">
+                        <div class="small" *ngIf="fieldInput.errors.required">Please enter {{field | capitalize}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

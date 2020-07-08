@@ -1,0 +1,74 @@
+<a (click)="showTripAuditModal(tripAuditModal)" style="margin-left: 5px;">
+    <span><i class="fa fa-search"></i></span>
+</a>
+
+<ng-template #tripAuditModal>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">Audit Trip No {{trip.tripNo}}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="closeTripAuditModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <table class="responsive table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">Event</th>
+                    <th class="col-sm-4">Initiator</th>
+                    <th class="col-sm-3">Context</th>
+                    <th class="col-sm-3">Datetime</th>
+                </tr>
+            </thead>
+            <tbody *ngIf="!logs || logs.length === 0">
+                <tr>
+                    <td colspan="4">
+                        No logs available
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="!!logs && logs.length > 0">
+                <tr *ngFor="let log of logs">
+                    <td>
+                        {{log.event | humanize}}
+                    </td>
+                    <td>
+                        <ng-container *ngIf="log.initiator.type == initiatorTypes.CONNECTION">
+                            <div *ngVar="getConnection(log.initiator.id) as connection">
+                                Connection: <a *ngIf="!!connection" href="#/company/connections/{{connection.id}}/view" (click)="closeTripAuditModal()">
+                                    {{connection.name || '(unspecified)'}}
+                                </a>
+                                <span *ngIf="!connection">Unknown</span>
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngIf="log.initiator.type == initiatorTypes.DRIVER">
+                            <div *ngVar="getDriver(log.initiator.id) as driver">
+                                Driver: <a *ngIf="!!driver" href="#/drivers/{{driver.id}}/view" (click)="closeTripAuditModal()">
+                                    {{driver.name() || '(unspecified)'}}
+                                </a>
+                                <span *ngIf="!driver">Unknown</span>
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngIf="log.initiator.type == initiatorTypes.WEB_USER">
+                            <div *ngVar="getWebUser(log.initiator.id) as user">
+                                Web User: <a *ngIf="!!user" href="mailto:{{user.email}}">
+                                    {{user.name() || '(unspecified)'}}
+                                </a>
+                                <span *ngIf="!user">Unknown</span>
+                            </div>
+                        </ng-container>
+                    </td>
+                    <td>
+                        <ng-container *ngIf="!!log.context && !!log.context.prevStatus">
+                            {{log.context.prevStatus | titlecase}} &rarr; {{log.context.newStatus | titlecase}}
+                        </ng-container>
+                    </td>
+                    <td>
+                        {{log.createdAt | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</ng-template>

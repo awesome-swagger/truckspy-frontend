@@ -1,0 +1,11 @@
+<span class="padding-10 notification-wrapper">
+  <a class="button-icon notification-close" (click)="acknowledgeMe()">
+    <i class="fa fa-times"></i>
+  </a>
+  <em class="badge padding-5 no-border-radius bg-color-blueLight pull-left margin-right-5">
+    <i [ngClass]="setClasses()"></i>
+  </em>
+  <span>{{item.text}} <a *ngIf="setURI()" href="{{setURI()}}">Click for entity details.</a>
+    <span class="pull-right font-xs text-muted"><i>{{item.createdAt | timezoneHandler | timeAgo}}</i></span>
+  </span>
+</span>

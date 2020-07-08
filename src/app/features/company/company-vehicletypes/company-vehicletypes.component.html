@@ -1,0 +1,136 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-left">Vehicle Types</div>
+        <div class="pull-right">
+            <a class="action-link" (click)="addVehicleType(addVehicleTypeModal)">Add</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body no-padding override-child-dataTable-margin">
+        <sa-datatable [options]="options" tableClass="table table-striped table-bordered table-hover" #vehicletypesTable>
+            <thead>
+                <tr>
+                    <th class="col-sm-2">Type</th>
+                    <th class="col-sm-3">Description</th>
+                    <th class="col-sm-2">Tare&nbsp;Weight</th>
+                    <th class="col-sm-2">Volume</th>
+                    <th class="col-sm-2">Capacity</th>
+                    <th class="col-sm-1">Actions</th>
+                </tr>
+            </thead>
+        </sa-datatable>
+    </div>
+</div>
+
+<ng-template #addVehicleTypeModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeVehicleTypeModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Add Vehicle Type</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #addVehicleTypeForm="ngForm" (ngSubmit)="addVehicleTypeForm.form.valid && createVehicleType()">
+            <div class="form-group">
+                <label class="col-sm-4" for="type">Type</label>
+                <div class="col-sm-8" [ngClass]="{ 'has-error': addVehicleTypeForm.submitted && typeInput.invalid }">
+                    <input class="input input-xs form-control" name="type" [(ngModel)]="vehicleTypeData.type"
+                        #typeInput="ngModel" required>
+
+                    <div *ngIf="addVehicleTypeForm.submitted && typeInput.invalid" class="help-block">
+                        <div class="small" *ngIf="typeInput.errors.required">Please enter type
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="description">Description</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="description" [(ngModel)]="vehicleTypeData.description">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="tareWeight">Tare&nbsp;Weight</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="tareWeight" [(ngModel)]="vehicleTypeData.tareWeight" type="number">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="volume">Volume</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="volume" [(ngModel)]="vehicleTypeData.volume" type="number">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="capacity">Capacity</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="capacity" [(ngModel)]="vehicleTypeData.capacity" type="number">
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<div bsModal #editVehicleTypeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeEditVehicleTypeModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Edit Vehicle Type</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" #editForm="ngForm" (ngSubmit)="editForm.form.valid && doEdit(editData)">
+                    <div class="form-group">
+                        <label class="col-sm-4">Type</label>
+                
+                        <div class="col-sm-8" [ngClass]="{ 'has-error': editForm.submitted && typeInput.invalid }">
+                            <input class="input input-xs form-control" name="type" [(ngModel)]="editData.type" #typeInput="ngModel"
+                                required>
+                            <div *ngIf="editForm.submitted && typeInput.invalid" class="help-block">
+                                <div class="small" *ngIf="typeInput.errors.required">Please enter name
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4" for="description">Description</label>
+                        <div class="col-sm-8">
+                            <input class="input input-xs form-control" name="description" [(ngModel)]="editData.description">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-4" for="tareWeight">Tare&nbsp;Weight</label>
+                        <div class="col-sm-8">
+                            <input class="input input-xs form-control" name="tareWeight" [(ngModel)]="editData.tareWeight"
+                                type="number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4" for="volume">Volume</label>
+                        <div class="col-sm-8">
+                            <input class="input input-xs form-control" name="volume" [(ngModel)]="editData.volume" type="number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4" for="capacity">Capacity</label>
+                        <div class="col-sm-8">
+                            <input class="input input-xs form-control" name="capacity" [(ngModel)]="editData.capacity" type="number">
+                        </div>
+                    </div>
+            
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

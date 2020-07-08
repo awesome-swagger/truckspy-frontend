@@ -1,0 +1,30 @@
+<span id="activity" class="activity-dropdown" (click)="onToggle()">
+  <i class="fa fa-warning"></i>
+  <b class="badge bg-color-blue" *ngIf="count > 0">{{count}}</b>
+</span>
+
+<div class="ajax-dropdown" #dropdown>
+  <!-- Just an empty first-child because of the template CSS logic -->
+  <div></div>
+
+  <!-- notification content -->
+  <div class="ajax-notifications custom-scroll">
+    <ul class="notification-body" *ngIf="activities">
+      <ng-template ngFor let-item [ngForOf]="activities">
+        <li activitiesNotification (removeAction)='removeNotification($event)' [item]="item"></li>
+      </ng-template>
+    </ul>
+  </div>
+  <!-- end notification content -->
+
+  <!-- footer: refresh area -->
+  <span> Last updated on: {{lastUpdate | timezoneHandler | moment:"HH:mm:ss"}}
+    <button type="button" (click)="update()" class="btn btn-xs btn-default pull-right">
+    <!-- <button type="button" (click)="update()" class="btn btn-xs btn-default pull-right"> -->
+      <i class="fa fa-refresh" *ngIf="!loading"></i>
+      <i class="fa fa-refresh fa-spin" *ngIf="loading"></i>
+      <span *ngIf="loading"> loading...</span>
+    </button>
+  </span>
+  <!-- end footer -->
+</div>

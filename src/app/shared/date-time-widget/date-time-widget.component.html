@@ -1,0 +1,15 @@
+<div class="input-group">
+    <ng-container *ngIf="(displayType$|async) == DISPLAY_TYPE_PICKER; else maskedInput">
+        <input class="form-control" [ngModel]="pickerStrategy.model" (ngModelChange)="onModelUpdate($event)"
+               [owlDateTimeTrigger]="dt" [owlDateTime]="dt"
+               [selectMode]="selectMode" (dateTimeChange)="dateTimeChange.emit($event)">
+        <owl-date-time [pickerType]="pickerType" #dt></owl-date-time>
+    </ng-container>
+    <ng-template #maskedInput>
+        <input class="form-control" [formControl]="textStrategy.inputControl"
+               [mask]="textStrategy.inputMode.mask" [dropSpecialCharacters]="false"
+               [placeholder]="textStrategy.inputMode.placeholder">
+    </ng-template>
+    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+</div>
+

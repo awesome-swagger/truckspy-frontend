@@ -1,0 +1,79 @@
+<div id="main" role="main" class="animated fadeInDown">
+
+  <div id="content" class="container">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+      <span id="auth-logo">
+        <img src="assets/img/logo1024.png" alt="Truckspy">
+      </span>
+
+      <div class="well no-padding">
+        <form class="smart-form client-form" #resetForm="ngForm" (ngSubmit)="resetForm.form.valid && submit()">
+          <header>
+            Reset Password
+          </header>
+
+          <fieldset>
+            <section *ngIf="errorMessage">
+              <div class="text-danger">
+                <strong>{{errorMessage}}</strong>
+              </div>
+            </section>
+            <section *ngIf="success">
+              <strong class="text-success">Password has been changed successfully.</strong>&nbsp;<a routerLink="/auth/login">Go to login page.</a>
+            </section>
+
+            <section>
+              <div class="form-group" [ngClass]="{ 'has-error': resetForm.submitted && passwordInput.invalid }">
+                <label class="control-label" for="password">New Password</label>
+                <label class="input form-control">
+                  <i class="icon-append fa fa-lock"></i>
+                  <input type="password" name="password" [(ngModel)]="password" #passwordInput="ngModel" required>
+                  <b class="tooltip tooltip-top-right">
+                    <i class="fa fa-lock txt-color-teal"></i>
+                    Enter your new password
+                  </b>
+                </label>
+
+                <div *ngIf="resetForm.submitted && passwordInput.invalid" class="help-block">
+                  <div *ngIf="passwordInput.errors.required">Please enter your new password</div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div class="form-group" [ngClass]="{ 'has-error': resetForm.submitted && confirmPasswordInput.invalid }">
+                <label class="control-label" for="confirmPassword">Confirm Password</label>
+                <label class="input form-control">
+                  <i class="icon-append fa fa-lock"></i>
+                  <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword"
+                    #confirmPasswordInput="ngModel" required>
+                  <b class="tooltip tooltip-top-right">
+                    <i class="fa fa-lock txt-color-teal"></i>
+                    Confirm your new password
+                  </b>
+                </label>
+
+                <div *ngIf="resetForm.submitted && confirmPasswordInput.invalid" class="help-block">
+                  <div *ngIf="confirmPasswordInput.errors.required">Please confirm your new password</div>
+                </div>
+              </div>
+
+              <div class="note">
+                <a routerLink="/auth/login">I want to login instead!</a>
+              </div>
+            </section>
+          </fieldset>
+
+          <footer>
+            <div class="form-group">
+              <button class="btn btn-primary">
+                Reset Password
+              </button>
+            </div>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>

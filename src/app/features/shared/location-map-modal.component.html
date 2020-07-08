@@ -1,0 +1,33 @@
+<a class="action-link" (click)="showLocationMapModal(locationMapModal)">
+    <span ngxTextHighlight [content]="location.name" [searchTerm]="highlight"  [caseSensitive]="false">
+    </span>
+</a>
+
+<ng-template #locationMapModal>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">Location Information</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="closeLocationMapModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-3">Name</label>
+                <label class="col-sm-9">
+                    <a href="#/location/list/{{location.id}}/view" (click)="closeLocationMapModal()">
+                        {{location.name}}
+                    </a>
+                </label>
+            </div>
+        </form>
+
+        <ng-container *ngIf="!!location && (location.isPolygon() || location.isPoint())">
+            <app-location-map [location]="location"></app-location-map>
+        </ng-container>
+        <ng-container *ngIf="!location || (!location.isPolygon() && !location.isPoint())">
+            <i>No map specific data</i>
+        </ng-container>
+    </div>
+</ng-template>

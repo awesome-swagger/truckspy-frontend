@@ -1,0 +1,136 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+
+  .right-content {
+    display: flex;
+    align-items: center;
+    margin: 12px 0 28px;
+
+    span {
+      margin-right: 8px;
+    }
+  }
+}
+
+.filter-select {
+  width: 200px;
+  margin-right: 25px;
+
+  ::ng-deep {
+    .ng-select-container {
+      height: 26px;
+      min-height: 26px;
+      border-radius: 0;
+
+      .ng-value-container {
+        padding-left: 6px;
+
+        .ng-input {
+          top: 2px;
+          padding-left: 6px;
+
+          input {
+            padding-left: 1px;
+            padding-right: 1px;
+          }
+        }
+      }
+    }
+
+    .ng-clear-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+
+    .ng-arrow-wrapper {
+      width: 20px;
+      padding-right: 2px;
+    }
+
+    .ng-dropdown-panel {
+      .ng-dropdown-panel-items .ng-option {
+        padding: 4px 6px;
+
+        &:last-child {
+          border-bottom-right-radius: 0;
+          border-bottom-left-radius: 0;
+        }
+      }
+    }
+  }
+
+  &.ng-select-focused:not(.ng-select-opened) {
+    ::ng-deep {
+      > .ng-select-container {
+        border-color: #ccc;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+.trips-content {
+  width: calc(100% - 102px);
+  position: relative;
+  float: left;
+
+  > div.panel {
+    margin-bottom: 0px;
+    border-left: none;
+
+    table > tbody td.trips-notrips {
+      text-align: center;
+      vertical-align: middle;
+    }
+  }
+}
+
+.trips-left-tabs {
+  width: 102px;
+  max-width: 102px;
+  position: relative;
+  float: left;
+  padding-top: 40px;
+  margin-right: -2px;
+
+  > li {
+    padding-right: 0px !important;
+    border-left: 1px solid #ddd;
+    height: 38.5px;
+
+    > a {
+      background-color: rgb(245, 245, 245);
+      height: 36.5px;
+    }
+
+    &.active > a {
+      background-color: #fff;
+      box-shadow: -2px 0 0 #57889c;
+    }
+  }
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  padding: 0 15px 0 0;
+
+  .nav-tabs {
+    margin-left: -1px;
+    margin-right: 10px;
+    border-bottom: none;
+
+    > li > a {
+      margin-right: 0;
+    }
+
+    > li.active > a {
+      border-bottom: 0;
+    }
+  }
+
+  .spacer {
+    flex: 1;
+  }
+}

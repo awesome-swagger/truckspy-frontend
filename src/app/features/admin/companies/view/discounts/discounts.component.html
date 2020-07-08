@@ -1,0 +1,118 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-left">Discounts</div>
+        <div class="pull-right">
+            <a class="action-link" (click)="addDiscount(addDiscountModal)">Add</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body no-padding override-child-dataTable-margin">
+        <sa-datatable [options]="optionsDiscounts" #discountsTable
+            tableClass="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">Name</th>
+                    <th class="col-sm-1">Type</th>
+                    <th class="col-sm-1">Amount</th>
+                    <th class="col-sm-2">Allowed Uses</th>
+                    <th class="col-sm-2">Total Uses</th>
+                    <th class="col-sm-2">Expired Date</th>
+                    <th class="col-sm-2">Actions</th>
+                </tr>
+            </thead>
+        </sa-datatable>
+    </div>
+</div>
+
+<ng-template #addDiscountModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeDiscountModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Add Discount</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #addDiscountForm="ngForm"
+            (ngSubmit)="addDiscountForm.form.valid && createDiscount()">
+            <div class="form-group">
+                <label class="col-sm-4" for="name">Name</label>
+                <div class="col-sm-8" [ngClass]="{ 'has-error': addDiscountForm.submitted && nameInput.invalid }">
+                    <input class="input input-xs form-control" name="name" [(ngModel)]="discountData.name"
+                        #nameInput="ngModel" required>
+
+                    <div *ngIf="addDiscountForm.submitted && nameInput.invalid" class="help-block">
+                        <div class="small" *ngIf="nameInput.errors.required">Please enter name
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="type">Type</label>
+                <div class="col-sm-8">
+                    <select style="width:100%" name="type" id="type" [(ngModel)]="discountData.type">
+                        <option *ngFor="let t of discountTypes" [value]="t">{{t | titlecase}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="amount">Amount</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="height: 24px!important;" *ngIf="discountData.type === 'FLAT'">
+                            <!-- <i class="fa"><b>$</b></i> -->
+                            <i class="fa fa-dollar"></i>
+                        </span>
+                        <input class="input input-xs form-control" name="amount" [(ngModel)]="discountData.amount"
+                            type="number" #amountInput="ngModel" required style="margin-top: 1px;">
+                        <span class="input-group-addon" style="height: 24px!important;" *ngIf="discountData.type === 'VARIABLE'">
+                            <i class="fa"><b>%</b></i>
+                        </span>
+                    </div>
+
+                    <div *ngIf="addDiscountForm.submitted && amountInput.invalid" class="help-block">
+                        <div class="small" *ngIf="amountInput.errors.required">Please enter amount
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="allowedUses">Allowed&nbsp;Uses</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="allowedUses" [(ngModel)]="discountData.allowedUses"
+                        type="number">
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<div bsModal #cancelDiscountModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeCancelDiscountModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Cancel Discount</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    Are you sure you want to cancel discount <b>{{discountToCancel.name}}</b>?
+                    <br /><br />
+                    <span class="badge bg-color-red">
+                        <i class="fa-fw fa fa-warning"></i>
+                    </span>
+                    This action cannot be undone.
+                </div>
+                <div class="text-right">
+                    <button class="btn btn-primary" (click)="doCancel()">Do Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

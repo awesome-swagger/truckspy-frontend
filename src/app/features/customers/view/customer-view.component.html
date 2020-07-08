@@ -1,0 +1,173 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Customers', customer.name]" icon="group"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="pull-left">Customer Information</div>
+                    <div class="pull-right">
+                        <a class="action-link" (click)="editCustomer(editCustomerModal)">
+                            Edit
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4">Name</label>
+                            <label class="col-sm-8">{{customer.name}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Phone</label>
+                            <label class="col-sm-8">{{customer.phone}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Status</label>
+                            <label class="col-sm-8">
+                                {{customer.status}}
+                                <ng-container *ngIf="customer && customer.id">
+                                    &nbsp;|&nbsp;
+                                    <app-long-action-link [actionName]="customer.isActive() ? 'Make Inactive' : 'Make Active'" [actionParams]="[customer.dispatchGroup]"
+                                        (actionClicked)="doToggleStatus($event[0], $event[1])">
+                                    </app-long-action-link>
+                                </ng-container>
+                            </label>
+                        </div>
+
+                        <h6>Physical Address</h6>
+                        <div class="form-group">
+                            <label class="col-sm-4">Address 1</label>
+                            <label
+                                class="col-sm-8">{{customer.physicalAddress && customer.physicalAddress.line1}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Address 2</label>
+                            <label class="col-sm-8">
+                                {{customer.physicalAddress && customer.physicalAddress.line2}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">City</label>
+                            <label class="col-sm-8">
+                                {{customer.physicalAddress && customer.physicalAddress.city}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">State</label>
+                            <label class="col-sm-8">
+                                {{customer.physicalAddress && customer.physicalAddress.state}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Country</label>
+                            <label class="col-sm-8">
+                                {{customer.physicalAddress && customer.physicalAddress.country}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4" for="zip">Zip</label>
+                            <label class="col-sm-8">
+                                {{customer.physicalAddress && customer.physicalAddress.zip}}
+                            </label>
+                        </div>
+
+                        <h6>Billing Address</h6>
+                        <div class="form-group">
+                            <label class="col-sm-4">Address 1</label>
+                            <label class="col-sm-8">
+                                {{customer.billingAddress && customer.billingAddress.line1}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Address 2</label>
+                            <label class="col-sm-8">
+                                {{customer.billingAddress && customer.billingAddress.line2}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">City</label>
+                            <label class="col-sm-8">
+                                {{customer.billingAddress && customer.billingAddress.city}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">State</label>
+                            <label class="col-sm-8">
+                                {{customer.billingAddress && customer.billingAddress.state}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Country</label>
+                            <label class="col-sm-8">
+                                {{customer.billingAddress && customer.billingAddress.country}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4" for="zip">Zip</label>
+                            <label class="col-sm-8">
+                                {{customer.billingAddress && customer.billingAddress.zip}}
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class=" col-sm-12 col-md-12 col-lg-8">
+            <app-customer-bookings></app-customer-bookings>
+        </div>
+
+    </div>
+</div>
+
+<ng-template #editCustomerModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeEditCustomerModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Edit Customer</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #editCustomerForm="ngForm" (ngSubmit)="editCustomerForm.form.valid && doUpdate()">
+            <div class="form-group">
+                <label class="col-sm-4" for="name">Name</label>
+                <div class="col-sm-8" [ngClass]="{ 'has-error': editCustomerForm.submitted && nameInput.invalid }">
+                    <input class="input input-xs form-control" name="name" [(ngModel)]="customerData.name"
+                        #nameInput="ngModel" required>
+
+                    <div *ngIf="editCustomerForm.submitted && nameInput.invalid" class="help-block">
+                        <div class="small" *ngIf="nameInput.errors.required">Please enter name
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="phone">Phone</label>
+                <div class="col-sm-8" [ngClass]="{ 'has-error': editCustomerForm.submitted && phoneInput.invalid }">
+                    <input type='text' name="phone" [(ngModel)]="customerData.phone" prefix="+" mask="00000000009"
+                        [showMaskTyped]="true" #phoneInput="ngModel" style="border-width: 1px;" required>
+
+                    <div *ngIf="editCustomerForm.submitted && phoneInput.invalid" class="help-block">
+                        <div class="small" *ngIf="phoneInput.invalid">Valid phone contains 10-11 digits</div>
+                    </div>
+                </div>
+            </div>
+
+            <h6>Physical Address</h6>
+            <app-address-input [address]="customerData.physicalAddress" [prefix]="A"></app-address-input>
+
+            <h6>Billing Address</h6>
+            <app-address-input [address]="customerData.billingAddress" [prefix]="B"></app-address-input>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

@@ -1,0 +1,82 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Dashboard']" icon="desktop" class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-md-4 col-lg-4">
+            <form class="panel panel-default" #deviceForm="ngForm" (ngSubmit)="deviceForm.form.valid && createDevice()">
+                <div class="panel-heading">Create Device</div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4">ICCID</label>
+                            <div class="col-sm-8"
+                                [ngClass]="{ 'has-error': deviceForm.submitted && iccidInput.invalid }">
+                                <input class="input input-xs form-control" name="iccid" [(ngModel)]="deviceData.iccid"
+                                    #iccidInput="ngModel" required>
+
+                                <div *ngIf="deviceForm.submitted && iccidInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="iccidInput.errors.required">Please enter ICCID
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">IMEI</label>
+                            <div class="col-sm-8">
+                                <input class="input input-xs form-control" name="imei" [(ngModel)]="deviceData.imei">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Serial Number</label>
+                            <div class="col-sm-8">
+                                <input class="input input-xs form-control" name="imei" [(ngModel)]="deviceData.serialNumber">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4">Type</label>
+                            <div class="col-sm-8">
+                                <select style="width:100%" name="type" id="type" [(ngModel)]="deviceData.type" (ngModelChange)="onTypeChange($event)">
+                                    <option *ngFor="let t of deviceTypes" [value]="t">{{t | replaceUnderscore}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Device Profile</label>
+                            <div class="col-sm-8">
+                                <select style="width:100%" name="profile" id="profile" [(ngModel)]="deviceData.deviceProfileId" [disabled]="!!profileOptions && profileOptions.length === 0">
+                                    <option *ngFor="let p of profileOptions" [value]="p.id">{{p.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Company</label>
+                            <div class="col-sm-8">
+                                <ng-select class="to-default" name="company" id="company"
+                                    [disabled]="!deviceEnabledCompanies || deviceEnabledCompanies.length == 0"
+                                    [items]="deviceEnabledCompanies" bindLabel="name" [clearable]="false"
+                                    [(ngModel)]="deviceData.company" dropdownPosition="bottom">
+                                    <ng-template ng-option-tmp let-item="item" let-index="index"
+                                        let-search="searchTerm">
+                                        <span [ngOptionHighlight]="search">{{item.name}}</span>
+                                    </ng-template>
+                                </ng-select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit"
+                            [disabled]="!deviceData.iccid || !deviceData.type || !deviceData.company || !profilesLoaded">Create</button>
+                    </div>
+                </div>
+
+                <div class="panel-footer" *ngIf="qrCode">
+                    <qrcode [qrdata]="qrCode" [size]="256" [level]="'Q'"></qrcode>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

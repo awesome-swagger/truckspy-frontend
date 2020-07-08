@@ -1,0 +1,368 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Vehicles', vehicle?.remoteId, 'Data View']" icon="truck"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+
+    <div class="row" *ngIf="vehicle && vehicle.dataError">
+        <div class="col-xs-12">
+            <div class="alert alert-danger fade in">
+                This vehicle has a data error: {{vehicle.lastOperation && vehicle.lastOperation.errorMessage}}
+                &nbsp;&nbsp;&nbsp;
+                <a class="action-link" (click)="seeErrors()">
+                    See error
+                </a>
+                <ng-container *ngIf="vehicle.dataErrorIgnoreEligible">
+                    &nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;
+                    <app-ignore-error-modal [vehicle]="vehicle" (callback)="afterIgnoreError($event[0], $event[1])"></app-ignore-error-modal>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <!-- <div class="panel-body no-padding mapbox-control-fix"> -->
+            <div class="panel-body no-padding">
+                <mgl-map [style]="style" [fitBoundsOptions]="fitBoundsOptions" (load)="onLoad($event)"
+                    [fitBounds]="fitBounds">
+                    <mgl-control [position]="'top-left'">
+                        <div class="mapbox-position-panel">
+                            <h6>Position&nbsp;Finder</h6>
+                    
+                            <div class="mapbox-position-container">
+                                <label class="col-sm-3" for="vehicle">Vehicle</label>
+                                <div class="col-sm-9">
+                                    <ng-select class="to-default to-default-3items" name="vehicle" id="vehicle"
+                                        [items]="vehicles" bindLabel="remoteId" [clearable]="false"
+                                        [(ngModel)]="findData.vehicle" dropdownPosition="bottom">
+                                        <ng-template ng-option-tmp let-item="item" let-index="index"
+                                            let-search="searchTerm">
+                                            <span [ngOptionHighlight]="search">{{item.remoteId}}</span>
+                                        </ng-template>
+                                    </ng-select>
+                                </div>
+                                <span class="col-sm-12">
+                                    <!-- Strange artifact, element is to to fix layout -->
+                                </span>
+                                <label class="col-sm-3" for="before">Before</label>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <input [(ngModel)]="findData.before" [owlDateTimeTrigger]="dt"
+                                            [owlDateTime]="dt" name="before" class="form-control"
+                                            style="height: 24px; padding-left: 4px;" [disabled]="findData.hopToErrors">
+                                        <span class="input-group-addon" style="height: 24px; padding: 4.2px;">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <owl-date-time #dt></owl-date-time>
+                                    </div>
+                                </div>
+                                <div class="col-sm-offset-3 col-sm-9">
+                                    <input style="vertical-align: -2px;" type="checkbox" id="hopToErrors"
+                                        name="hopToErrors" [(ngModel)]="findData.hopToErrors">
+                                    <label for="hopToErrors">Hop to Errors</label>
+                                </div>
+
+                                <label class="col-sm-3" for="perPage">Per&nbsp;page</label>
+                                <div class="col-sm-9">
+                                    <select style="width:100%" name="perPage" id="perPage" [(ngModel)]="perPage">
+                                        <option *ngFor="let p of perPageOptions" [value]="p">{{p}}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-offset-3 col-sm-9">
+                                    <button class="btn btn-primary" style="width: 100%" (click)="doSearchPositions()">
+                                        <i class="fa fa-search"></i> Find
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </mgl-control>
+
+                    <mgl-control [position]="'top-left'" *ngIf="positionsLoaded">
+                        <div class="mapbox-position-results-panel" #scrollableDiv>
+                            <!-- <h6>Positions</h6> -->
+                            <div class="pull-left">
+                                <p class="h6"><b>Positions</b></p>
+                            </div>
+                            <div class="pull-right" style="padding-top: 5.9px;">
+                                <a class="action-link" (click)="beginEdit()" *ngIf="!edit">Edit</a>
+
+                                <div dropdown class="dropdown" style=" display: inline-block; width: 100px;" *ngIf="edit">
+                                    <!-- Workaround for [disabled] and dropdownToggle incompatibility -->
+                                    <button *ngIf="!selectedOne" disabled
+                                        class="btn btn-xs btn-default">
+                                        Select action <span class="caret"></span>
+                                    </button>
+                                    <button *ngIf="selectedOne" dropdownToggle
+                                        class="btn btn-xs btn-default">
+                                        Select action <span class="caret"></span>
+                                    </button>
+                                    <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu" style="width: 150px;">
+                                        <li>
+                                            <a (click)="performIgnore()">Ignore</a>
+                                        </li>
+                                        <li>
+                                            <a (click)="performIgnoreOdometer()">Ignore Odometer</a>
+                                        </li>
+                                        <li [class.disabled]="!selectedTwo">
+                                            <a (click)="selectedTwo && performReassign()">
+                                                Reassign
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <a class="button-icon" *ngIf="edit" (click)="cancelEdit()">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </div>
+
+                            <table class="table table-sm positions-table" *ngIf="positions">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Odometer</th>
+                                        <th scope="col">Speed</th>
+                                        <th scope="col">State</th>
+                                        <th scope="col">Loc</th>
+                                        <th scope="col" *ngIf="edit">
+                                            <input type="checkbox" style="margin: 0px;" [(ngModel)]="all" (ngModelChange)="selectAll($event)">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody *ngIf="positions.tablePositions.length > 0">
+                                    <ng-container *ngFor="let p of positions.tablePositions">
+                                        <tr [class.position-active]="p.hover"
+                                            [class.position-not-processed]="!p.hover && p.isNotProcessed()"
+                                            [class.position-error]="!p.hover && p.isError()"
+                                            (mouseenter)="rowEntered(p)" (mouseleave)="rowLeaved(p)">
+                                            <td>
+                                                {{p.datetime | timezoneHandler
+                                                    | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler}}
+                                            </td>
+                                            <td>{{p.odometer}}</td>
+                                            <td>
+                                                {{(p.speed || p.gpsVelocity) | number : '1.0-0'}}
+                                            </td>
+                                            <td>{{p.state}}</td>
+                                            <td>{{p.getLocationNames()}}</td>
+                                            <td *ngIf="edit">
+                                                <input type="checkbox" style="margin: 0px;"
+                                                    [(ngModel)]="p.checked" (ngModelChange)="selectSingle($event, p)">
+                                            </td>
+                                        </tr>
+                                        <tr *ngIf="p.format.allowInsertBefore">
+                                            <td colspan="2" style="padding: 0!important;">
+                                                <button class="btn btn-default" title="Add position" (click)="addPosition(p)">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </ng-container>
+                                </tbody>
+                                <tbody *ngIf="positions.tablePositions.length == 0">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center;">
+                                            No data available
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <ngb-pagination [boundaryLinks]="true" [collectionSize]="positions?.resultCount || 0"
+                                [(page)]="page" [pageSize]="perPageFixed" [maxSize]="2" [rotate]="true" [ellipses]="true"
+                                (pageChange)="changePage($event)" aria-label="Default pagination" size="sm"
+                                *ngIf="positions && positions.resultCount > 0">
+                                <ng-template ngbPaginationFirst>
+                                    &lt;&lt;
+                                </ng-template>
+                                <ng-template ngbPaginationPrevious>
+                                    &lt;
+                                </ng-template>
+                                <ng-template ngbPaginationNext>
+                                    &gt;
+                                </ng-template>
+                                <ng-template ngbPaginationLast>
+                                    &gt;&gt;
+                                </ng-template>
+                            </ngb-pagination>
+                        </div>
+                    </mgl-control>
+
+                    <mgl-geojson-source id="positions-lines-dotted-source">
+                        <mgl-feature *ngFor="let f of (isShowLine ? lineFeatures.dotted : [])" [properties]="f.properties"
+                            [geometry]="f.geometry"></mgl-feature>
+                    </mgl-geojson-source>
+                    <mgl-layer id="positions-lines-dotted-layer" type="line" source="positions-lines-dotted-source"
+                        [paint]="{
+                            'line-color': ['get', 'color'],
+                            'line-dasharray': [1, 1],
+                            'line-opacity': 0.75,
+                            'line-width': ['get', 'width']
+                          }">
+                    </mgl-layer>
+                    <mgl-geojson-source id="positions-lines-solid-source">
+                        <mgl-feature *ngFor="let f of (isShowLine ? lineFeatures.solid : [])" [properties]="f.properties"
+                            [geometry]="f.geometry"></mgl-feature>
+                    </mgl-geojson-source>
+                    <mgl-layer id="positions-lines-solid-layer" type="line" source="positions-lines-solid-source"
+                        [paint]="{
+                            'line-color': ['get', 'color'],
+                            'line-opacity': 0.75,
+                            'line-width': ['get', 'width']
+                          }">
+                    </mgl-layer>
+
+                    <ng-container *ngFor="let f of pointFeatures">
+                        <mgl-marker [lngLat]="f.coordinates">
+                            <i class="fa" [ngClass]="f.icon" [class.fa-2x]="f.hover" (mouseenter)="iconEntered(f)"
+                                (mouseleave)="iconLeaved(f)" [style.color]="f.color"
+                                [style.transform]="'rotate(' + f.rotation + 'deg)'"
+                                [style.-ms-transform]="'rotate(' + f.rotation + 'deg)'"
+                                [style.-webkit-transform]="'rotate(' + f.rotation + 'deg)'"
+                                [style.-o-transform]="'rotate(' + f.rotation + 'deg)'"></i>
+                        </mgl-marker>
+                    </ng-container>
+
+                    <mgl-control>
+                        <button class="btn btn-xs btn-default" (click)="toggleStyle()">
+                            <i class="fa" [ngClass]="{ 'fa-camera': isDefault, 'fa-road': !isDefault }"></i>
+                            {{isDefault ? "Satellite" : "Streets"}}
+                        </button>
+                    </mgl-control>
+                    <mgl-control *ngIf="vehicle?.reportingProfile?.id">
+                        <button class="btn btn-xs btn-default" (click)="showHideLocations()">
+                            <i class="fa" [ngClass]="{ 'fa-eye': !isShow, 'fa-eye-slash': isShow }"></i>
+                            {{isShow ? "Hide Locations" : "Show Locations"}}
+                        </button>
+                    </mgl-control>
+
+                    <mgl-control *ngIf="lineFeatures.dotted.length > 0 || lineFeatures.solid.length > 0">
+                        <button class="btn btn-xs btn-default" (click)="showHideLines()">
+                            <i class="fa" [ngClass]="{ 'fa-eye': !isShowLine, 'fa-eye-slash': isShowLine }"></i>
+                            {{isShowLine ? "Hide Lines" : "Show Lines"}}
+                        </button>
+                    </mgl-control>
+
+                    <mgl-geojson-source id="locations-source">
+                        <mgl-feature *ngFor="let l of locations" [properties]="l.prepareProperties()"
+                            [geometry]="l.prepareGeometry()"></mgl-feature>
+                    </mgl-geojson-source>
+
+                    <mgl-layer id="locations-layer" type="fill" source="locations-source" [paint]="{
+                        'fill-color': 'rgba(200, 100, 240, 0.4)',
+                        'fill-outline-color': 'rgba(200, 100, 240, 1)'
+                      }" (mouseEnter)="cursorStyle = 'pointer'" (mouseLeave)="cursorStyle = ''"
+                        (click)="onClick($event)" *ngIf="isShow">
+                    </mgl-layer>
+
+                    <mgl-popup *ngIf="selectedLngLat" [lngLat]="selectedLngLat" #thePopup>
+                        <div style="min-width: 200px;" class="form-horizontal mapbox-popup-form-fix">
+                            <div class="form-group">
+                                <label class="col-sm-4">Name:</label>
+                                <b class="col-sm-8">{{selectedElement.name}}</b>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4">Address&nbsp;1:</label>
+                                <b class="col-sm-8">{{selectedElement.address1 || "-"}}</b>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4">Address&nbsp;2:</label>
+                                <b class="col-sm-8">{{selectedElement.address2 || "-"}}</b>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4">City:</label>
+                                <b class="col-sm-8">{{selectedElement.city || "-"}}</b>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4">State:</label>
+                                <b class="col-sm-8">{{selectedElement.state || "-"}}</b>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4">Zip:</label>
+                                <b class="col-sm-8">{{selectedElement.zip || "-"}}</b>
+                            </div>
+                        </div>
+                    </mgl-popup>
+                </mgl-map>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #regularEditModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-400">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeRegularEditModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Position Edit Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" (ngSubmit)="doRegularEdit()">
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <span class="badge bg-color-red">
+                                <i class="fa-fw fa fa-warning"></i>
+                            </span>
+                            Are you sure you want to edit these?<br />
+                            Once you make this edit all positions with datetimes greater than
+                            {{regularEdit.from | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss'}} will be reprocessed.<br />
+                            It is possible that any reports generated based on these positions will change.
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button *ngIf="!actionInProgress" class="btn btn-primary" type="submit">Perform Edit</button>
+                        <button *ngIf="actionInProgress" class="btn btn-primary" disabled="true">Performing Edit...</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #reassignModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-400">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeReassignModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Assign Positions to Another Vehicle</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group" *ngIf="!reassign.vehicles || reassign.vehicles.length === 0">
+                        <div class="col-xs-12">
+                            <span class="badge bg-color-red">
+                                <i class="fa-fw fa fa-warning"></i>
+                            </span>
+                            There are no other vehicles elgible to assign these positions to.
+                        </div>
+                    </div>
+
+                    <div class="form-group" *ngIf="reassign.vehicles && reassign.vehicles.length > 0">
+                        <label class="col-sm-3" for="toVehicle">Vehicle</label>
+                        <div class="col-sm-9">
+                            <ng-select class="to-default" name="toVehicle" id="toVehicle" [items]="reassign.vehicles"
+                                bindLabel="remoteId" [clearable]="false" [(ngModel)]="reassign.toVehicle" dropdownPosition="bottom">
+                                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                    <span [ngOptionHighlight]="search">{{item.remoteId}}</span>
+                                </ng-template>
+                            </ng-select>
+                        </div>
+                    </div>
+
+                    <div class="text-right" *ngIf="!reassign.vehicles || reassign.vehicles.length === 0">
+                        <button class="btn btn-default" (click)="closeReassignModal()">OK</button>
+                    </div>
+                    <div class="text-right" *ngIf="reassign.vehicles && reassign.vehicles.length > 0">
+                        <button *ngIf="!actionInProgress" class="btn btn-primary" (click)="doReassign()">Perform Edit</button>
+                        <button *ngIf="actionInProgress" class="btn btn-primary" disabled="true">Performing Edit...</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

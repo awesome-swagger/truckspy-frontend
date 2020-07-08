@@ -1,0 +1,15 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Dwell Events</div>
+    <div class="panel-body no-padding override-child-dataTable-margin">
+        <sa-datatable [options]="options" tableClass="table table-striped table-bordered table-hover" #companiesTable>
+            <thead>
+                <tr>
+                    <th class="col-sm-2">{{isVehicle ? 'Location' : 'Vehicle'}}</th>
+                    <th class="col-sm-4">Arrival Datetime</th>
+                    <th class="col-sm-4">Departure Datetime</th>
+                    <th class="col-sm-2">Duration</th>
+                </tr>
+            </thead>
+        </sa-datatable>
+    </div>
+</div>

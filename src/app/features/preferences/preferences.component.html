@@ -1,0 +1,219 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['User Preferences']" icon="cogs" class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-4">
+            <form class="panel panel-default" #profileForm="ngForm" (ngSubmit)="profileForm.form.valid && save()">
+                <div class="panel-heading">
+                    <div class="pull-left">User Information</div>
+                    <div class="pull-right">
+                        <a class="action-link" *ngIf="!edit" (click)="beginEdit()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="edit">
+                            <button class="btn btn-xs btn-default" type="button" (click)="!profileForm.resetForm() && cancelEdit()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5" for="firstName">First Name</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{user.firstName}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': profileForm.submitted && firstNameInput.invalid }">
+                                <input class="input input-xs form-control" name="firstName"
+                                    [(ngModel)]="profileData.firstName" #firstNameInput="ngModel" required>
+
+                                <div *ngIf="profileForm.submitted && firstNameInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="firstNameInput.errors.required">Please enter first name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5" for="lastName">Last Name</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{user.lastName}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': profileForm.submitted && lastNameInput.invalid }">
+                                <input class="input input-xs form-control" name="lastName"
+                                    [(ngModel)]="profileData.lastName" #lastNameInput="ngModel" required>
+
+                                <div *ngIf="profileForm.submitted && lastNameInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="lastNameInput.errors.required">Please enter last name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5" for="email">Email</label>
+                            <label class="col-sm-7 hidden-long-text" title="{{user.email}}" *ngIf="!edit">{{user.email}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': profileForm.submitted && emailInput.invalid }">
+                                <input class="input input-xs form-control" name="email" [(ngModel)]="profileData.email"
+                                    #emailInput="ngModel" required email>
+
+                                <div *ngIf="profileForm.submitted && emailInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="emailInput.errors.required">Please enter email address
+                                    </div>
+                                    <div class="small" *ngIf="emailInput.errors.email">Please enter valid email</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5" for="phone">Phone</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{user.phone}}</label>
+                            <div class="col-sm-7" *ngIf="edit">
+                                <input class="input input-xs form-control" name="phone" [(ngModel)]="profileData.phone">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Role</label>
+                            <label class="col-sm-7">{{user.roles | roleFilter}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5" for="timezone">Timezone</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{user.timezone}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit">
+                                <select style="width:100%" name="timezone" id="timezone"
+                                    [(ngModel)]="profileData.timezone">
+                                    <option *ngFor="let t of timezones" [value]="t">{{t}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="pull-right">
+                        <a (click)="changePassword(changePasswordModal)">Change Password</a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+
+            <form class="panel panel-default" #preferencesForm="ngForm" (ngSubmit)="preferencesForm.form.valid && savePreferences()">
+                <div class="panel-heading">
+                    <div class="pull-left">User Preferences</div>
+                    <div class="pull-right">
+                        <a class="action-link" *ngIf="!editPreferences" (click)="beginEditPreferences()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="editPreferences">
+                            <button class="btn btn-xs btn-default" type="button" (click)="!preferencesForm.resetForm() && cancelEditPreferences()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5" for="tableLength">Table Length</label>
+                            <label class="col-sm-7" *ngIf="!editPreferences">{{user.id && user.getTableLength()}}</label>
+
+                            <div class="col-sm-7" *ngIf="editPreferences">
+                                <select style="width:100%" name="tableLength" id="tableLength"
+                                    [(ngModel)]="preferencesData.tableLength">
+                                    <option *ngFor="let l of tableLengths" [value]="l">{{l}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5" for="entryPoint">Entry Point</label>
+                            <label class="col-sm-7" *ngIf="!editPreferences">{{user.id && entryPointsMap[user.getEntryPoint()]}}</label>
+
+                            <div class="col-sm-7" *ngIf="editPreferences">
+                                <select style="width:100%" name="entryPoint" id="entryPoint" [(ngModel)]="preferencesData.entryPoint">
+                                    <!-- <option *ngFor="let e of entryPoints" [value]="e">{{entryPointsMap[e]}}</option> -->
+                                    <option value="/dashboard" *ngIf="user && user.isUser()">
+                                        Dashboard
+                                    </option>
+                                    <option value="/admin/dashboard" *ngIf="user && user.isAdmin()">
+                                        Dashboard
+                                    </option>
+                                    <option value="/messages" *ngIf="user && user.isUser() && company && company.devicesEnabled">
+                                        Messages
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5" for="dateTimeDisplay">Display date/time input</label>
+                            <label class="col-sm-7" *ngIf="!editPreferences">{{ dateTimePreference.getUserPreference()?.displayName }}</label>
+
+                            <div class="col-md-7" *ngIf="editPreferences">
+                                <select  style="width:100%" name="datetime" id="dateTimeDisplay" [(ngModel)]="preferencesData.datetime">
+                                    <option *ngFor="let opt of dateTimePreference.options" [value]="opt.value">
+                                        {{ opt.displayName }}
+                                    </option>
+                                </select>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class=" col-sm-12 col-md-12 col-lg-8">
+            <app-notification-settings></app-notification-settings>
+        </div>
+    </div>
+</div>
+
+<ng-template #changePasswordModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeChangePasswordModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Change Password</h4>
+    </div>
+    <div class="modal-body">
+        <!-- <form class="smart-form client-form" #changePasswordForm="ngForm" (ngSubmit)="changePasswordForm.form.valid && doChangePassword()"> -->
+        <form class="form-horizontal" #changePasswordForm="ngForm" (ngSubmit)="changePasswordForm.form.valid && doChangePassword()">
+            <div class="form-group">
+                <div class="col-sm-12" [ngClass]="{ 'has-error': changePasswordForm.submitted && passwordInput.invalid }">
+                    <label class="control-label" for="password">Current Password</label>
+                    <input type="password" class="input input-xs form-control" name="password" [(ngModel)]="changePasswordData.password"
+                        #passwordInput="ngModel" required>
+
+                    <div *ngIf="changePasswordForm.submitted && passwordInput.invalid" class="help-block">
+                        <div class="small" *ngIf="passwordInput.errors.required">Please enter current password</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12" [ngClass]="{ 'has-error': changePasswordForm.submitted && newPasswordInput.invalid }">
+                    <label class="control-label" for="newPassword">New Password</label>
+                    <input type="password" class="input input-xs form-control" name="newPassword" [(ngModel)]="changePasswordData.newPassword"
+                        #newPasswordInput="ngModel" required>
+
+                    <div *ngIf="changePasswordForm.submitted && newPasswordInput.invalid" class="help-block">
+                        <div class="small" *ngIf="newPasswordInput.errors.required">Please enter new password</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12" [ngClass]="{ 'has-error': changePasswordForm.submitted && confirmNewPasswordInput.invalid }">
+                    <label class="control-label" for="confirmNewPassword">Confirm New Password</label>
+                    <input type="password" class="input input-xs form-control" name="confirmNewPassword" [(ngModel)]="changePasswordData.confirmNewPassword"
+                        #confirmNewPasswordInput="ngModel" required>
+
+                    <div *ngIf="changePasswordForm.submitted && confirmNewPasswordInput.invalid" class="help-block">
+                        <div class="small" *ngIf="confirmNewPasswordInput.errors.required">Please confirm new password</div>
+                    </div>
+                </div>
+            </div>
+
+            <br/>
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Change Password</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

@@ -1,0 +1,8 @@
+input {
+    height: 24px;
+    padding-left: 4px;
+}
+.input-group-addon {
+    height: 24px;
+    padding: 4.2px;
+}

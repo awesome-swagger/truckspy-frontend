@@ -1,0 +1,169 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Vehicles']" icon="truck" class="col-xs-8">
+        </sa-big-breadcrumbs>
+
+        <div class="col-xs-4" style="padding-top: 12px">
+            <button class="btn btn-default pull-right" [class.btn-primary]="tabsState == 'map'"
+                (click)="tabsState = 'map'" [disabled]="!vehiclesLoaded">
+                <i class="fa fa-map-marker"></i> Map
+            </button>
+            <button class="btn btn-default pull-right" [class.btn-primary]="tabsState == 'table'"
+                (click)="tabsState = 'table'">
+                <i class="fa fa-table"></i> Table
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default" *ngIf="tabsState == 'table'">
+                <div class="panel-heading" style="padding-left: 10px;">
+                    <ul class="nav nav-tabs pull-left" style="margin: -10px;">
+                        <li [class.active]="!dataError && isActiveTab()">
+                            <a (click)="!(!dataError && isActiveTab()) && showActive()">
+                                <span><i class="fa fa-check-circle-o" style="color: green;"></i>&nbsp;Active</span>
+                            </a>
+                        </li>
+                        <li [class.active]="!dataError && !isActiveTab()">
+                            <a (click)="!(!dataError && !isActiveTab()) && showDeleted()">
+                                <span><i class="fa fa-trash-o"></i>&nbsp;Deleted</span>
+                            </a>
+                        </li>
+                        <li [class.active]="dataError">
+                            <a (click)="!dataError && showDataError()">
+                                <span><i class="fa fa-exclamation" style="color: tomato;"></i>&nbsp;Error</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="pull-right" *ngIf="theCompany().devicesEnabled">
+                        <a class="action-link" (click)="addVehicle(addVehicleModal)">
+                            Create Vehicle
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body no-padding override-child-dataTable-margin">
+                    <sa-datatable [options]="options" #vehiclesTable tableClass="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-1">Vehicle</th>
+                                <th class="col-sm-2">Reporting Profile</th>
+                                <th class="col-0_7">Status</th>
+                                <th class="col-sm-3">Connection</th>
+                                <th class="col-sm-1">Domocile</th>
+                                <th class="col-sm-2">
+                                    <span [innerHtml]="infoHeader"></span>
+                                </th>
+                                <th class="col-1_6">
+                                    <span [innerHtml]="datetimeHeader"></span>
+                                </th>
+                                <th class="col-0_7">Products</th>
+                            </tr>
+                        </thead>
+                    </sa-datatable>
+                </div>
+            </div>
+
+            <div class="panel panel-default" *ngIf="tabsState == 'map'">
+                <div class="panel-body no-padding" *ngVar="vehicles | vehiclesMapItems as mapVehicles">
+                    <mgl-map [style]="style" [fitBoundsOptions]="fitBoundsOptions"
+                        (load)="onLoad($event)" [fitBounds]="fitBounds">
+                        <mgl-control>
+                            <button class="btn btn-xs btn-default" (click)="toggleStyle()">
+                                <i class="fa" [ngClass]="{ 'fa-camera': isDefault, 'fa-road': !isDefault }"></i>
+                                {{isDefault ? "Satellite" : "Streets"}}
+                            </button>
+                        </mgl-control>
+                        <ng-container *ngFor="let vehicle of mapVehicles">
+                            <mgl-marker #vehicleMarker
+                                [lngLat]="[vehicle.lastPosition.longitude, vehicle.lastPosition.latitude]">
+                                <button type="button" class="btn btn-info btn-circle">
+                                    <i class="fa fa-long-arrow-up"
+                                        [style.transform]="'rotate(' + vehicle.lastPosition.heading + 'deg)'"
+                                        [style.-ms-transform]="'rotate(' + vehicle.lastPosition.heading + 'deg)'"
+                                        [style.-webkit-transform]="'rotate(' + vehicle.lastPosition.heading + 'deg)'"
+                                        [style.-o-transform]="'rotate(' + vehicle.lastPosition.heading + 'deg)'"></i>
+                                </button>
+                            </mgl-marker>
+                            <mgl-popup [marker]="vehicleMarker" [closeButton]="false">
+                                Vehicle: <a href="#/vehicles/{{vehicle.id}}/view">
+                                    <b>{{vehicle.remoteId}}</b>
+                                </a><br />
+                                Time: <b>{{vehicle.lastPosition.datetime | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler}}</b><br />
+                                Ignition: <b>{{vehicle.lastPosition.ignition}}</b><br />
+                                Speed: <b>{{vehicle.lastPosition.speed + " mph"}}</b><br />
+                                Heading: <b>{{vehicle.lastPosition.heading}}</b><br />
+                            </mgl-popup>
+                        </ng-container>
+                    </mgl-map>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #addVehicleModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeAddVehicleModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Create Vehicle</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #addVehicleForm="ngForm" (ngSubmit)="addVehicleForm.form.valid && doCreate()">
+            <div class="form-group">
+                <label class="col-sm-4" for="vehicleId">Vehicle Id</label>
+                <div class="col-sm-8" [ngClass]="{ 'has-error': addVehicleForm.submitted && vehicleIdInput.invalid }">
+                    <input class="input input-xs form-control" name="vehicleId" [(ngModel)]="vehicleData.remoteId"
+                        #vehicleIdInput="ngModel" required>
+
+                    <div *ngIf="addVehicleForm.submitted && vehicleIdInput.invalid" class="help-block">
+                        <div class="small" *ngIf="vehicleIdInput.errors.required">Please enter vehicle ID
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="autoFix">AutoFix GPS Issues</label>
+                <div class="col-sm-8">
+                    <select style="width:100%" name="autoFix" id="autoFix" [(ngModel)]="vehicleData.autoFix">
+                        <option [ngValue]="true">true</option>
+                        <option [ngValue]="false">false</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                    <label class="col-sm-4" for="vin">VIN</label>
+                    <div class="col-sm-8">
+                        <input class="input input-xs form-control" name="vin" [(ngModel)]="vehicleData.vin">
+                    </div>
+                </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="year">Year</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="year" type="number" [(ngModel)]="vehicleData.year">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="make">Make</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="make" [(ngModel)]="vehicleData.make">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="model">Model</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="model" [(ngModel)]="vehicleData.model">
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

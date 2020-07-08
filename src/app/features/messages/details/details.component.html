@@ -1,0 +1,142 @@
+<div class="sa-outlook-content-header">
+    <folder-selector></folder-selector>
+</div>
+
+<div class="table-wrap custom-scroll sa-outlook-content" *ngIf="message">
+    <h2 class="email-open-header">
+        Message
+        <message-labels [message]="message"></message-labels>
+        <i class="fa fa-check" [title]="message.acknowledged ? 'Acknowledged' : 'Not Acknowledged'"
+            [style.color]="message.acknowledged ? 'green' : 'lightGray'">
+        </i>
+
+        <label class="control-label pull-right"
+            [title]="message.createdAt | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler">
+            {{message.createdAt | messageDate}}
+        </label>
+    </h2>
+
+    <div class="form-horizontal">
+        <div class="inbox-info-bar no-padding">
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label col-md-1"><strong>{{fromDriver ? 'From' : 'To'}}</strong></label>
+
+                    <div class="col-md-11" style="padding-right: 10px; padding-left: 5px;">
+                        <input class="form-control message-disabled-input" type="text" [value]="driverName" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inbox-info-bar no-padding">
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label col-md-1"><strong>Subject</strong></label>
+
+                    <div class="col-md-11" style="padding-right: 10px; padding-left: 5px;">
+                        <input class="form-control message-disabled-input" type="text"
+                            [value]="message && message.subject" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inbox-info-bar no-padding">
+            <textarea class="message-textarea message-disabled-input" disabled name="body"
+                [value]="message && message.body"></textarea>
+        </div>
+
+        <div class="inbox-compose-footer" style="height: 53.4px">
+            <button *ngIf="fromDriver && !message.archived && !archiving" type="button"
+                (click)="archiving = true; archive()" class="btn btn-danger pull-left">
+                Archive <i class="fa fa-trash-o fa-lg"></i>
+            </button>
+            <button *ngIf="fromDriver && !message.archived && archiving" type="button"
+                class="btn btn-danger pull-left">
+                <i class="fa fa-refresh fa-spin"></i> Archiving...
+            </button>
+            <button *ngIf="fromDriver && message.archived && !unarchiving" type="button"
+                (click)="unarchiving = true; unarchive()" class="btn btn-default pull-left">
+                Unarchive <i class="fa fa-recycle fa-lg"></i>
+            </button>
+            <button *ngIf="fromDriver && message.archived && unarchiving" type="button"
+                class="btn btn-default pull-left">
+                <i class="fa fa-refresh fa-spin"></i> Unarchiving...
+            </button>
+
+            <button *ngIf="fromDriver" (click)="reply = true;" class="btn btn-primary pull-right" type="button">
+                Reply <i class="fa fa-reply fa-lg"></i>
+            </button>
+
+            <button *ngIf="fromDriver && !message.acknowledged && !acknowledging" type="button"
+                (click)="acknowledging = true; acknowledge()" class="btn btn-default pull-right"
+                style="margin-right: 5px;">
+                Acknowledge <i class="fa fa-check fa-lg"></i>
+            </button>
+            <button *ngIf="fromDriver && !message.acknowledged && acknowledging" type="button"
+                class="btn btn-default pull-right" style="margin-right: 5px;">
+                <i class="fa fa-refresh fa-spin"></i> Acknowledging...
+            </button>
+        </div>
+    </div>
+
+    <h2 *ngIf="reply" class="email-open-header" style="margin-top: 0px;">
+        Reply Message
+        <span class="label bg-color-orange">Draft</span>
+    </h2>
+
+    <form *ngIf="reply" class="form-horizontal">
+        <div class="inbox-info-bar no-padding">
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label col-md-1"><strong>To</strong></label>
+
+                    <div class="col-md-11" style="padding-right: 10px; padding-left: 5px;">
+                        <input class="form-control message-disabled-input" type="text" [value]="driverName" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inbox-info-bar no-padding">
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label col-md-1"><strong>Subject</strong></label>
+
+                    <div class="col-md-11" style="padding-right: 10px; padding-left: 5px;">
+                        <input class="form-control message-disabled-input" type="text"
+                            [value]="replyData && replyData.subject" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inbox-info-bar no-padding">
+            <textarea class="message-textarea" name="body" [(ngModel)]="replyData.body"></textarea>
+        </div>
+
+        <div class="inbox-compose-footer" style="height: 53.4px">
+            <button class="btn btn-danger" type="button" (click)="discardReply()" style="margin-right: 5px;">
+                <i class="fa fa-trash fa-lg"></i>
+            </button>
+
+            <button *ngIf="!drafting" (click)="drafting = true; createReplyMessage()" class="btn btn-default"
+                type="button" [disabled]="!replyData.body">
+                Draft
+            </button>
+            <button *ngIf="drafting" class="btn btn-default" type="button">
+                <i class="fa fa-refresh fa-spin"></i> Drafting...
+            </button>
+
+            <button *ngIf="!sending" (click)="sending = true; createReplyMessage()" class="btn btn-primary pull-right"
+                type="button" [disabled]="!replyData.body">
+                Send <i class="fa fa-arrow-circle-right fa-lg"></i>
+            </button>
+            <button *ngIf="sending" class="btn btn-primary pull-right" type="button">
+                <i class="fa fa-refresh fa-spin"></i> Sending...
+            </button>
+        </div>
+    </form>
+
+</div>

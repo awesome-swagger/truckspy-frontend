@@ -1,0 +1,29 @@
+<div id="content">
+  <div class="row">
+    <sa-big-breadcrumbs [items]="['Devices']" icon="tablet" class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+    </sa-big-breadcrumbs>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-default">
+        <div class="panel-body no-padding override-child-dataTable-margin">
+          <sa-datatable [options]="options" tableClass="table table-striped table-bordered table-hover" #devicesTable>
+            <thead>
+              <tr>
+                <th class="col-1_7">Device ID</th>
+                <th class="col-1_7">Device Type</th>
+                <th class="col-sm-1">IMEI</th>
+                <th class="col-sm-2">Reporting Profile</th>
+                <th class="col-sm-1">Last Vehicle</th>
+                <th class="col-0_7">Software Version</th>
+                <th class="col-1_6">Last Position</th>
+                <th class="col-0_7">Connected</th>
+                <th class="col-1_6">Data Error</th>
+              </tr>
+            </thead>
+          </sa-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

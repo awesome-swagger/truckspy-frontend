@@ -1,0 +1,60 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Bookings']" icon="calendar" class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="padding-left: 10px;">
+                    <ul class="nav nav-tabs pull-left" style="margin: -10px;">
+                        <li [class.active]="status === statuses.AVAILABLE">
+                            <a (click)="status !== statuses.AVAILABLE && showAvailable()">
+                                <span><i class="fa fa-tags"></i>&nbsp;Available</span>
+                            </a>
+                        </li>
+                        <li [class.active]="status === statuses.DISPATCHED">
+                            <a (click)="status !== statuses.DISPATCHED && showDispatched()">
+                                <span><i class="fa fa-spinner" style="color: orange;"></i>&nbsp;Dispatched</span>
+                            </a>
+                        </li>
+                        <li [class.active]="status === statuses.COMPLETED">
+                            <a (click)="status !== statuses.COMPLETED && showCompleted()">
+                                <span><i class="fa fa-check-circle-o" style="color: green;"></i>&nbsp;Completed</span>
+                            </a>
+                        </li>
+                        <li [class.active]="status === statuses.ALL">
+                            <a (click)="status !== statuses.ALL && showAll()">
+                                <span><i class="fa fa-list-ol"></i>&nbsp;All</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="pull-right">
+                        <app-create-booking [linkName]="'Create Booking'" (callback)="refreshBookingsTable()"
+                            [customers]="customers" [types]="types" [feedbackTypes]="feedbackTypes"
+                            [locations]="locations" *ngIf="typesLoaded && customersLoaded">
+                        </app-create-booking>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body no-padding override-child-dataTable-margin">
+                    <sa-datatable [options]="options" #bookingsTable
+                        tableClass="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-1">Book&nbsp;No</th>
+                                <th class="col-sm-2">Customer</th>
+                                <th class="col-sm-2">Origin</th>
+                                <th class="col-sm-2">Load Date</th>
+                                <th class="col-sm-2">Destination</th>
+                                <th class="col-sm-2">Delv Date</th>
+                                <th class="col-sm-1">Status</th>
+                            </tr>
+                        </thead>
+                    </sa-datatable>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

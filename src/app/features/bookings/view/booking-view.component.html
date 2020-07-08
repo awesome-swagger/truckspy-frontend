@@ -1,0 +1,301 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Bookings', booking.bookNo]" icon="calendar"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="pull-left">Booking Information</div>
+                    <div class="pull-right">
+                        <a class="action-link" (click)="editBooking(editBookingModal)" *ngIf="loaded && customersLoaded && typesLoaded && locationsLoaded">
+                            Edit
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4">Book No</label>
+                            <label class="col-sm-8">{{booking.bookNo}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Status</label>
+                            <label class="col-sm-8">{{booking.status}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Customer</label>
+                            <label class="col-sm-8">
+                                <a *ngIf="booking.customer && booking.customer.id" href="#/customers/{{booking.customer.id}}/view">
+                                    {{booking.customer.name}}
+                                </a>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4">Vehicle Type</label>
+                            <label class="col-sm-8">{{booking.vehicleType && booking.vehicleType.type}}</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="pull-left">Stops</div>
+                    <div class="pull-right">
+                      <a class="action-link" *ngIf="locationsLoaded" (click)="addStop(addStopModal)">Add</a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body" *ngIf="!booking.stops || booking.stops.length === 0">
+                    <div class="form-horizontal">
+                        <i>No stops</i>
+                    </div>
+                </div>
+                <div class="panel-body" *ngIf="!!booking.stops && booking.stops.length > 0">
+                    <div class="form-horizontal tables-flat">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-1">Order</th>
+                                    <th class="col-sm-3">Location</th>
+                                    <th class="col-sm-3">Arrive Date</th>
+                                    <th class="col-sm-2">Stop Type</th>
+                                    <th class="col-sm-3">Required Feedback</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let stop of booking.stops">
+                                    <td class="col-sm-1">{{stop.stopOrder}}</td>
+                                    <td class="col-sm-3">
+                                        <a href="#/location/list/{{stop.location.id}}/view" *ngIf="!!stop.location">
+                                            {{stop.location.name}}
+                                        </a>
+                                        <label *ngIf="!stop.location && !!stop.address">
+                                            {{stop.address.getAddress()}}
+                                        </label>
+                                    </td>
+                                    <td class="col-sm-3">{{stop.arriveDate | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler}}</td>
+                                    <td class="col-sm-2">{{stop.loadedType | lowercase | titlecase}}</td>
+                                    <td class="col-sm-3">
+                                        {{stop.getFeedbackTypesText()}}
+                                        <!-- {{stop | json}} -->
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+<ng-template #editBookingModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeEditBookingModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Edit Booking</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #editBookingForm="ngForm" (ngSubmit)="editBookingForm.form.valid && doUpdate()">
+            <div class="form-group">
+                <label class="col-sm-2" for="customer">Customer</label>
+                <div class="col-sm-3">
+                    <select style="width:100%" name="customer" id="customer" [(ngModel)]="bookingData.customerId">
+                        <option *ngFor="let c of customers" [value]="c.id">{{c.name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2" for="type">Vehicle Type</label>
+                <div class="col-sm-3">
+                    <select style="width:100%" name="type" id="type" [(ngModel)]="bookingData.typeId" [disabled]="types.length === 0">
+                        <option value="">N/A</option>
+                        <option *ngFor="let t of types" [value]="t.id">{{t.type}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-horizontal tables-flat">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-1">Order</th>
+                            <th class="col-sm-4">Location</th>
+                            <th class="col-sm-3">Arrive Date</th>
+                            <th class="col-sm-2">Stop Type</th>
+                            <th class="col-sm-2">Required Feedback</th>
+                            <th class=""></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let stop of bookingData.stops; index as order">
+                            <td class="col-sm-1">
+                                {{order + 1}}
+                            </td>
+                            <td class="col-sm-4">
+                                <label for="isLocation{{order}}" *ngIf="locations.length > 0">
+                                    <input name="isLocation{{order}}" id="isLocation{{order}}" [(ngModel)]="stop.isLocation"
+                                        style="vertical-align: -2px;" type="checkbox">
+                                    Select Location
+                                </label>
+
+                                <div *ngIf="stop.isLocation">
+                                    <ng-select class="to-default" name="location{{order}}"
+                                        [items]="locations" bindLabel="name" bindValue="id" [clearable]="false"
+                                        [(ngModel)]="stop.locationId" dropdownPosition="bottom">
+                                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                            <span [ngOptionHighlight]="search">{{item.name}}</span>
+                                        </ng-template>
+                                    </ng-select>
+                                </div>
+
+                                <div *ngIf="!stop.isLocation">
+                                    <app-address-input [address]="stop.address" [prefix]="order" [compact]="true"></app-address-input>
+                                </div>
+                            </td>
+                            <td class="col-sm-3">
+                                <div class="input-group">
+                                    <input [(ngModel)]="stop.arriveDate" [owlDateTimeTrigger]="dt" [owlDateTime]="dt"
+                                        name="arriveDate{{order}}" class="form-control" style="height: 24px; padding-left: 4px;">
+                                    <span class="input-group-addon" style="height: 24px; padding: 4.2px;">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <owl-date-time #dt></owl-date-time>
+                                </div>
+                            </td>
+                            <td class="col-sm-2">
+                                <select style="width:100%" name="loadedType{{order}}" [(ngModel)]="stop.loadedType">
+                                    <option *ngFor="let lt of loadedTypes" [value]="lt">{{lt | lowercase | titlecase}}</option>
+                                </select>
+                            </td>
+                            <td class="col-sm-2">
+                                <label *ngIf="feedbackTypes.length === 0">
+                                    <i>No feedback types to select</i>
+                                </label>
+                                <ng-select class="to-default" name="feedback{{order}}" *ngIf="feedbackTypes.length > 0"
+                                    [items]="feedbackTypes" bindLabel="name" bindValue="id" [closeOnSelect]="false"
+                                    [(ngModel)]="stop.requiredFeedbackTypes" [multiple]="true" dropdownPosition="bottom">
+                                    <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
+                                        <div class="ng-value">
+                                            <span class="ng-value-label" *ngIf="items.length === 1">Selected {{items.length}} type</span>
+                                            <span class="ng-value-label" *ngIf="items.length > 1">Selected {{items.length}} types</span>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                        <span [ngOptionHighlight]="search">{{item.name}}</span>
+                                    </ng-template>
+                                </ng-select>
+                            </td>
+                            <td class="">
+                                <button class="btn btn-xs btn-default" type="button" (click)="deleteStop(order)" *ngIf="bookingData.stops.length > 2">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #addStopModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeStopModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Add Stop</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #addStopForm="ngForm" (ngSubmit)="addStopForm.form.valid && createStop()">
+            <div class="form-group">
+                <label class="col-sm-4" for="order">Order</label>
+                <span class="col-sm-8" name="order">{{stopData.stopOrder}}</span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label for="isLocation" *ngIf="locations.length > 0">
+                    <input name="isLocation" id="isLocation" [(ngModel)]="stopData.isLocation"
+                        style="vertical-align: -2px;" type="checkbox">
+                    Select Location
+                </label>
+                <div class="form-group" *ngIf="stopData.isLocation">
+                    <label class="col-sm-4" for="location">Location</label>
+                    <div class="col-sm-8">
+                        <ng-select class="to-default" name="location" [items]="locations" bindLabel="name" bindValue="id"
+                            [clearable]="false" [(ngModel)]="stopData.locationId" dropdownPosition="bottom">
+                            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                <span [ngOptionHighlight]="search">{{item.name}}</span>
+                            </ng-template>
+                        </ng-select>
+                    </div>
+                </div>
+                <div *ngIf="!stopData.isLocation">
+                    <app-address-input [address]="stopData.address" [compact]="true"></app-address-input>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="arriveDate">Arrive Date</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input [(ngModel)]="stopData.arriveDate" [owlDateTimeTrigger]="dt" [owlDateTime]="dt" name="arriveDate"
+                            class="form-control" style="height: 24px; padding-left: 4px;">
+                        <span class="input-group-addon" style="height: 24px; padding: 4.2px;">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <owl-date-time #dt></owl-date-time>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="loadedType">Stop Type</label>
+                <div class="col-sm-8">
+                    <select style="width:100%" name="loadedType" [(ngModel)]="stopData.loadedType">
+                        <option *ngFor="let lt of loadedTypes" [value]="lt">{{lt | lowercase | titlecase}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4">Required Feedback</label>
+                <div class="col-sm-8">
+                    <label *ngIf="feedbackTypes.length === 0">
+                        <i>No feedback types to select</i>
+                    </label>
+                    <ng-select class="to-default" name="feedback" *ngIf="feedbackTypes.length > 0"
+                        [items]="feedbackTypes" bindLabel="name" bindValue="id" [closeOnSelect]="false"
+                        [(ngModel)]="stopData.requiredFeedbackTypes" [multiple]="true" dropdownPosition="bottom">
+                        <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
+                            <div class="ng-value">
+                                <span class="ng-value-label" *ngIf="items.length === 1">Selected {{items.length}} type</span>
+                                <span class="ng-value-label" *ngIf="items.length > 1">Selected {{items.length}} types</span>
+                            </div>
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                            <span [ngOptionHighlight]="search">{{item.name}}</span>
+                        </ng-template>
+                    </ng-select>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

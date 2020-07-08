@@ -1,0 +1,83 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Companies', company.name]" icon="building"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Company Information
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5">Company Name</label>
+                            <label class="col-sm-7">{{company.name}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Address</label>
+                            <label class="col-sm-7" style="white-space: pre-line;">
+                                {{((company.address1 && company.address1 + "&#13;&#10;") +
+                                (company.address2 && company.address2 + "\n") +
+                                (company.city && company.city + ",&nbsp;") +
+                                (company.state && company.state + "&nbsp;") +
+                                (company.zip)) || "N/A"}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Devices {{company.devicesEnabled ? 'Enabled' : 'Disabled'}}</label>
+                            <a class="action-link" (click)="toggleDevicesEnable()">{{company.devicesEnabled ? 'disable' : 'enable'}}</a>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Credit {{company.creditAllowed ? 'Allowed' : 'Disallowed'}}</label>
+                            <a class="action-link" (click)="toggleCreditAllow()">{{company.creditAllowed ? 'disallow' : 'allow'}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Billing Information
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal" *ngIf="!source">
+                        <i>No Data</i>
+                    </div>
+                    <div class="form-horizontal" *ngIf="source">
+                        <div class="form-group">
+                            <label class="col-sm-5">Card</label>
+                            <label class="col-sm-7">{{source.brand}}{{source.last4 && " ending in " + source.last4}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Name</label>
+                            <label class="col-sm-7">{{source.name | naHandler}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Billing Address</label>
+                            <label class="col-sm-7" style="white-space: pre-line;">
+                                {{((source.address_line1 && source.address_line1 + "\n") +
+                                    (source.address_line2 && source.address_line2 + "\n") +
+                                    (source.address_city && source.address_city + ",&nbsp;") +
+                                    (source.address_state && source.address_state + "&nbsp;") +
+                                    (source.address_zip)) || "N/A"}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Billed On</label>
+                            <label class="col-sm-7">{{company.billedOn ? "Monthly, day " + company.billedOn : "N/A"}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class=" col-sm-12 col-md-12 col-lg-8">
+            <app-admin-invoices></app-admin-invoices>
+
+            <app-admin-discounts></app-admin-discounts>
+        </div>
+    </div>
+</div>

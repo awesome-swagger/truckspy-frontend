@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Location Position</div>
+    <div class="panel-body" *ngIf="!location || !location.polygon">
+        <div class="form-horizontal">
+            <i>No Data</i>
+        </div>
+    </div>
+
+    <div class="panel-body no-padding" *ngIf="location && location.polygon">
+        <app-location-map [location]="location"></app-location-map>
+    </div>
+</div>

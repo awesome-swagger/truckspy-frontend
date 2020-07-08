@@ -1,0 +1,69 @@
+<div class="btn-header transparent pull-right">
+    <span>
+        <a (click)="openHelpModal()" title="Keyboard Shortcuts">
+            <i class="fa fa-keyboard-o"></i>
+        </a>
+    </span>
+</div>
+<ng-keyboard-shortcuts [shortcuts]="shortcuts"></ng-keyboard-shortcuts>
+
+<ng-template #helpTemplate>
+    <div class="modal-body">
+        <h1>
+            <i class="fa fa-keyboard-o text-muted"></i>&nbsp;&nbsp; Truckspy Keyboard Shortcuts
+        </h1>
+        <hr class="simple" />
+        <h5>Instruction</h5>
+
+        Press keyboard combinations (shortcuts) below for quick actions to take effect.
+        <br />
+        <br />
+
+        <h5>Combinations</h5>
+        <ul *ngIf="theUser() && theUser().isUser()">
+            <li>
+                <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> or <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>?</kbd>
+                - shows this help modal
+            </li>
+            <li>
+                <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd>
+                - exits edit mode
+            </li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> - moves focus to the searh box</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd> - navigates to <u><b>V</b></u>ehicles</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd> - navigates to I<u><b>N</b></u>spection Configuration</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd> - navigates to <u><b>D</b></u>rivers</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>R</kbd> - navigates to <u><b>R</b></u>eporting Profiles</li>
+            <li *ngIf="theCompany() && theCompany().enabledFeatures && theCompany().enabledFeatures.fuel"><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd> - navigates to F<u><b>U</b></u>el</li>
+            <li *ngIf="theCompany() && theCompany().devicesEnabled"><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd> - navigates to <u><b>M</b></u>essages</li>
+            <li *ngIf="theCompany() && theCompany().devicesEnabled"><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> - navigates to <u><b>L</b></u>ocations Map</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd> - navigates to D<u><b>E</b></u>vices</li>
+            <li *ngIf="theCompany() && theCompany().enabledFeatures && theCompany().enabledFeatures.dispatching"><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd> - navigates to D<u><b>I</b></u>spatch</li>
+            <li *ngIf="theCompany() && theCompany().enabledFeatures && theCompany().enabledFeatures.dispatching"><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> - navigates to <u><b>B</b></u>ookings</li>
+            <li *ngIf="theCompany() && theCompany().enabledFeatures && theCompany().enabledFeatures.dispatching"><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> - navigates to Cu<u><b>S</b></u>tomers</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> - navigates to <u><b>C</b></u>ompany</li>
+        </ul>
+        <ul *ngIf="theUser() && theUser().isAdmin()">
+            <li>
+                <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> or <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>?</kbd>
+                - shows this help modal
+            </li>
+            <li>
+                <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd>
+                - exits edit mode
+            </li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> - moves focus to the searh box</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd> - navigates to <u><b>U</b></u>sers</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> - navigates to <u><b>C</b></u>ompanies</li>
+            <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd> - navigates to S<u><b>Y</b></u>stem</li>
+        </ul>
+        <br />
+
+        <hr class="simple" />
+        <div class="text-right">
+            <button type="button" class="btn btn-success btn-lg" (click)="closeHelpModal()">
+                Got it!
+            </button>
+        </div>
+    </div>
+</ng-template>

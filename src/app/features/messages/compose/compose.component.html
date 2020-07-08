@@ -1,0 +1,70 @@
+<div class="sa-outlook-content-header">
+    <folder-selector></folder-selector>
+</div>
+
+<div class="table-wrap custom-scroll sa-outlook-content" *ngIf="message">
+    <h2 class="email-open-header">
+        Compose New Message
+        <span class="label bg-color-orange">Draft</span>
+    </h2>
+
+    <form class="form-horizontal">
+        <div class="inbox-info-bar no-padding">
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label col-md-1"><strong>To</strong></label>
+
+                    <div class="col-md-11" style="padding-right: 10px; padding-left: 5px;">
+                        <select style="width: 100%;" data-select-search="true" select2 name="to"
+                            [(ngModel)]="message.receiverId" (changedAction)="receiverChanged($event)" [chooseOnTab]="true">
+                            <option *ngFor="let recipient of recipientOptions"
+                                    [disabled]="recipient.disabled"
+                                    [value]="recipient.id">
+                                {{recipient.displayName}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inbox-info-bar no-padding">
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label col-md-1"><strong>Subject</strong></label>
+
+                    <div class="col-md-11">
+                        <input class="form-control" placeholder="Email Subject" type="text"
+                            [(ngModel)]="message.subject" #subjectInput="ngModel" name="subject">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inbox-info-bar no-padding">
+            <textarea class="message-textarea" name="body" [(ngModel)]="message.body"></textarea>
+        </div>
+
+        <div class="inbox-compose-footer">
+            <button class="btn btn-danger" type="button" (click)="discard()" style="margin-right: 5px;">
+                <i class="fa fa-trash fa-lg"></i>
+            </button>
+
+            <button *ngIf="!drafting" (click)="drafting = true; createMessage()" class="btn btn-default" type="button"
+                [disabled]="!message.subject || !message.body || !message.receiverId">
+                Draft
+            </button>
+            <button *ngIf="drafting" class="btn btn-default" type="button">
+                <i class="fa fa-refresh fa-spin"></i> Drafting...
+            </button>
+
+            <button *ngIf="!sending" (click)="sending = true; createMessage()" class="btn btn-primary pull-right"
+                type="button" [disabled]="!message.subject || !message.body || !message.receiverId">
+                Send <i class="fa fa-arrow-circle-right fa-lg"></i>
+            </button>
+            <button *ngIf="sending" class="btn btn-primary pull-right" type="button">
+                <i class="fa fa-refresh fa-spin"></i> Sending...
+            </button>
+        </div>
+    </form>
+</div>

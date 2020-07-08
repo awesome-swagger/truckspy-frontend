@@ -1,0 +1,35 @@
+<mgl-map [style]="style" [fitBoundsOptions]="fitBoundsOptions"
+    (load)="onLoad($event)" [fitBounds]="fitBounds">
+    <mgl-control>
+        <button class="btn btn-xs btn-default" (click)="toggleStyle()">
+            <i class="fa" [ngClass]="{ 'fa-camera': isDefault, 'fa-road': !isDefault }"></i>
+            {{isDefault ? "Satellite" : "Streets"}}
+        </button>
+    </mgl-control>
+
+    <mgl-geojson-source id="locations-source-polygon">
+        <mgl-feature *ngIf="location.isPolygon()" [properties]="location.prepareProperties()" [geometry]="location.prepareGeometry()">
+        </mgl-feature>
+    </mgl-geojson-source>
+
+    <mgl-geojson-source id="locations-source-point">
+        <mgl-feature *ngIf="location.isPoint()" [properties]="location.prepareProperties()" [geometry]="location.preparePointGeometry()">
+        </mgl-feature>
+    </mgl-geojson-source>
+
+    <mgl-layer id="locations-layer-polygon" type="fill" source="locations-source-polygon" [paint]="{
+        'fill-color': 'rgba(200, 100, 240, 0.4)',
+        'fill-outline-color': 'rgba(200, 100, 240, 1)'
+    }">
+    </mgl-layer>
+
+    <mgl-image id="pin-image" url="https://api.tiles.mapbox.com/v3/marker/pin-s+FE2020.png" (loaded)="imageLoaded = true">
+    </mgl-image>
+
+    <mgl-layer *ngIf="imageLoaded" id="locations-layer-point" type="symbol" source="locations-source-point" [layout]="{
+        'icon-image': 'pin-image',
+        'icon-size': 2,
+        'icon-allow-overlap': true
+        }">
+    </mgl-layer>
+</mgl-map>

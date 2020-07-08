@@ -1,0 +1,137 @@
+<a class="action-link" (click)="addBooking(addBookingModal)">
+    {{linkName || 'Create Booking'}}
+</a>
+
+<ng-template #addBookingModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeBookingModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Create Booking</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #addBookingForm="ngForm" (ngSubmit)="addBookingForm.form.valid && createBooking()">
+            <div class="form-group">
+                <label class="col-sm-2" for="customer">Customer</label>
+                <div class="col-sm-3">
+                    <select style="width:100%" name="customer" id="customer" [(ngModel)]="bookingData.customerId" [disabled]="customers.length === 0">
+                        <option *ngFor="let c of customers" [value]="c.id">{{c.name}}</option>
+                    </select>
+
+                    <div *ngIf="customers.length === 0" class="help-block">
+                        <div class="small">Please create a customer
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2" for="type">Vehicle Type</label>
+                <div class="col-sm-3">
+                    <select style="width:100%" name="type" id="type" [(ngModel)]="bookingData.typeId" [disabled]="types.length === 0">
+                        <option value="">N/A</option>
+                        <option *ngFor="let t of types" [value]="t.id">{{t.type}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-horizontal tables-flat">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-1">Order</th>
+                            <th class="col-sm-4">Location</th>
+                            <th class="col-sm-3">Arrive Date</th>
+                            <th class="col-sm-2">Stop Type</th>
+                            <th class="col-sm-2">Required Feedback</th>
+                            <th class="">
+                                <button class="btn btn-xs btn-success" type="button" (click)="addStop()">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let stop of bookingData.stops; index as order">
+                            <td class="col-sm-1">
+                                {{order + 1}}
+                            </td>
+                            <td class="col-sm-4">
+                                <label for="isLocation{{stop.id}}" *ngIf="locations.length > 0">
+                                    <input name="isLocation{{stop.id}}" id="isLocation{{stop.id}}" [(ngModel)]="stop.isLocation"
+                                        style="vertical-align: -2px;" type="checkbox">
+                                    Select Location
+                                </label>
+
+                                <div *ngIf="stop.isLocation">
+                                    <ng-select class="to-default" name="location{{stop.id}}"
+                                        [items]="locations" bindLabel="name" bindValue="id" [clearable]="false"
+                                        [(ngModel)]="stop.locationId" dropdownPosition="bottom">
+                                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                            <span [ngOptionHighlight]="search">{{item.name}}</span>
+                                        </ng-template>
+                                    </ng-select>
+                                </div>
+
+                                <div *ngIf="!stop.isLocation">
+                                    <app-address-input [address]="stop.address" [prefix]="order" [compact]="true"></app-address-input>
+                                </div>
+                            </td>
+                            <td class="col-sm-3">
+                                <div class="input-group">
+                                    <input [(ngModel)]="stop.arriveDate" [owlDateTimeTrigger]="dt" [owlDateTime]="dt"
+                                        name="arriveDate{{stop.id}}" class="form-control" style="height: 24px; padding-left: 4px;">
+                                    <span class="input-group-addon" style="height: 24px; padding: 4.2px;">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <owl-date-time #dt></owl-date-time>
+                                </div>
+                            </td>
+                            <td class="col-sm-2">
+                                <select style="width:100%" name="loadedType{{stop.id}}" [(ngModel)]="stop.loadedType">
+                                    <option *ngFor="let lt of loadedTypes" [value]="lt">{{lt | lowercase | titlecase}}</option>
+                                </select>
+                            </td>
+                            <td class="col-sm-2">
+                                <label *ngIf="feedbackTypes.length === 0">
+                                    <i>No feedback types to select</i>
+                                </label>
+                                <ng-select class="to-default" name="feedback{{stop.id}}" *ngIf="feedbackTypes.length > 0"
+                                    [items]="feedbackTypes" bindLabel="name" bindValue="id" [closeOnSelect]="false"
+                                    [(ngModel)]="stop.requiredFeedbackTypes" [multiple]="true" dropdownPosition="bottom">
+                                    <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
+                                        <!-- <div class="ng-value" *ngFor="let item of items | slice:0:1">
+                                            <span class="ng-value-label">{{item.name}}</span>
+                                            <span class="ng-value-icon right" (click)="clear(item)" aria-hidden="true">×</span>
+                                        </div>
+                                        <div class="ng-value" *ngIf="items.length > 1">
+                                            <span class="ng-value-label">{{items.length - 1}} more...</span>
+                                        </div> -->
+                                        <div class="ng-value">
+                                            <span class="ng-value-label" *ngIf="items.length === 1">Selected {{items.length}} type</span>
+                                            <span class="ng-value-label" *ngIf="items.length > 1">Selected {{items.length}} types</span>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                        <span [ngOptionHighlight]="search">{{item.name}}</span>
+                                    </ng-template>
+                                </ng-select>
+                            </td>
+                            <td class="">
+                                <button class="btn btn-xs btn-default" type="button" (click)="deleteStop(order)" *ngIf="bookingData.stops.length > 2">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit" [disabled]="customers.length === 0">
+                    Create
+                </button>
+            </div>
+        </form>
+    </div>
+</ng-template>

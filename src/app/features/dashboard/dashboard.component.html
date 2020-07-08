@@ -1,0 +1,46 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Dashboard']" icon="desktop" class="col-xs-8">
+        </sa-big-breadcrumbs>
+
+        <div class="col-xs-4" style="padding-top: 12px">
+            <ng-select *ngIf="entitiesLoaded" class="to-default to-default-250 dropdown-to-right pull-right"
+                style="width: 100%; max-width: 150px;" [items]="entities" bindLabel="name" [clearable]="false"
+                [(ngModel)]="entity" (ngModelChange)="onEntityChange($event)">
+                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                    <span [ngOptionHighlight]="search">
+                        {{item.id === company.id ? "(Entire Fleet) " : ""}}{{item.name}}
+                    </span>
+                </ng-template>
+                <ng-template ng-label-tmp let-item="item">
+                    {{item.id === company.id ? "(Entire Fleet) " : ""}}{{item.name}}
+                </ng-template>
+            </ng-select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body no-padding">
+                    <div *ngIf="statisticsLoaded">
+                        <label style="margin-left: 10px; margin-right: 10px;">Zoom</label>
+                        <button class="btn btn-xs btn-default" *ngFor="let p of reportPeriods"
+                            [class.btn-primary]="period === p.value" (click)="setPeriodTo(p.value)"
+                            [title]="p.value | replaceUnderscore">
+                            {{p.value | productTypeMin}}
+                        </button>
+                        <select style="width: 150px" class="pull-right" [(ngModel)]="dataset"
+                            (ngModelChange)="datasetChanged($event)">
+                            <option *ngFor="let d of datasets" [value]="d">{{d}}</option>
+                        </select>
+                    </div>
+                    <div [chart]="stock"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-8">
+            <app-reports-table #appReportsTable [entity]="entity"></app-reports-table>
+        </div>
+    </div>
+</div>

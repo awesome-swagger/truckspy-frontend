@@ -1,0 +1,175 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Inspection', 'Configuration', configuration.name]" icon="user"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-4">
+            <form class="panel panel-default" #configurationForm="ngForm" (ngSubmit)="configurationForm.form.valid && save()">
+                <div class="panel-heading">
+                    <div class="pull-left">Details</div>
+                    <div class="pull-right">
+                        <a class="action-link" *ngIf="configuration.editable && !edit" (click)="beginEdit()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="configuration.editable && edit">
+                            <button class="btn btn-xs btn-default" type="button"
+                                (click)="!configurationForm.resetForm() && cancelEdit()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3">Name</label>
+                            <label class="col-sm-9" *ngIf="!edit">{{configuration.name}}</label>
+
+                            <div class="col-sm-9" *ngIf="edit"
+                                [ngClass]="{ 'has-error': configurationForm.submitted && nameInput.invalid }">
+                                <input class="input input-xs form-control" name="name"
+                                    [(ngModel)]="configurationData.name" #nameInput="ngModel" required>
+
+                                <div *ngIf="configurationForm.submitted && nameInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="nameInput.errors.required">Please enter configuration name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">Questions</div>
+                <div class="panel-body no-padding">
+                    <table class="responsive table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-6">Question</th>
+                                <th class="col-sm-3">Created&nbsp;At</th>
+                                <th class="col-1_4">Require Description</th>
+                                <th class="col-1_4">Allow Image</th>
+                                <th class="" *ngIf="configuration.editable"></th>
+                              </tr>
+                        </thead>
+                        <tbody *ngIf="!configuration.questions || configuration.questions.length === 0" droppable
+                            (onDrop)="onAvailableQuestionDrop($event)" [dropScope]="'assignQuestion'">
+                            <tr>
+                                <td class="text-center" [attr.colspan]="configuration.editable ? 5 : 4">
+                                    No questions
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="!!configuration.questions && configuration.questions.length > 0" droppable
+                            (onDrop)="onAvailableQuestionDrop($event)" [dropScope]="'assignQuestion'">
+                            <tr *ngFor="let item of configuration.questions">
+                                <td class="col-sm-6">
+                                    {{item.question.text}}
+                                </td>
+                                <td class="col-sm-3">
+                                    {{item.question.createdAt | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss'}}
+                                </td>
+                                <td class="col-1_4">
+                                    {{item.question.requireDescriptionLabel()}}
+                                </td>
+                                <td class="col-1_4">
+                                    {{item.question.allowImageLabel()}}
+                                </td>
+                                <td class="text-center" *ngIf="configuration.editable">
+                                    <app-long-action-link [icon]="true" [iconName]="'trash'" [actionParams]="[item.question]"
+                                        (actionClicked)="unassignQuestion($event[0], $event[1])">
+                                    </app-long-action-link>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel panel-default" *ngIf="configuration.editable">
+                <div class="panel-heading" style="padding-left: 10px; padding-bottom: 7.5px;">
+                    <span class="pull-left">Available Questions</span>
+                    <div class="btn-group">
+                        <input class="panel-search" placeholder="Search..." name="searchQuestions" id="searchQuestions"
+                            [(ngModel)]="qSearch" type="text">
+                        <span class="fa fa-times message-search-clear" (click)="qSearch = ''"></span>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="panel-body no-padding" *ngVar="{
+                    filteredQuestions: availableQuestions | questionSearch:qSearch,
+                    paginatedQuestions: availableQuestions | questionSearch:qSearch | arrayPagination:page:pageSize
+                } as questionsFilter">
+                    <table class="responsive table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-6">Question</th>
+                                <th class="col-sm-3">Created&nbsp;At</th>
+                                <th class="col-1_5">Require Description</th>
+                                <th class="col-1_5">Allow Image</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="!questionsFilter.paginatedQuestions.array || questionsFilter.paginatedQuestions.array.length === 0">
+                            <tr>
+                                <td colspan="4" style="text-align: center; vertical-align: middle;">
+                                    No available questions
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="!!questionsFilter.paginatedQuestions.array && questionsFilter.paginatedQuestions.array.length > 0">
+                            <ng-container *ngFor="let question of questionsFilter.paginatedQuestions.array">
+                                <tr draggable [dragData]="question" [dragScope]="'assignQuestion'">
+                                    <td class="col-sm-6">
+                                        <span ngxTextHighlight [content]="question.text" [searchTerm]="qSearch"  [caseSensitive]="false">
+                                        </span>
+                                    </td>
+                                    <td class="col-sm-3">
+                                        {{question.createdAt | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss'}}
+                                    </td>
+                                    <td class="col-1_5">
+                                        <span ngxTextHighlight [content]="question.requireDescriptionLabel()" [searchTerm]="qSearch"  [caseSensitive]="false">
+                                        </span>
+                                    </td>
+                                    <td class="col-1_5">
+                                        <span ngxTextHighlight [content]="question.allowImageLabel()" [searchTerm]="qSearch"  [caseSensitive]="false">
+                                        </span>
+                                    </td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>
+
+                    <div class="dt-toolbar-footer">
+                        <div class="col-sm-6 col-xs-12 hidden-xs">
+                            <div class="dataTables_info" role="status" style="padding-top: 9px; padding-bottom: 6px;">
+                                Showing {{questionsFilter.filteredQuestions.length > 0 ? questionsFilter.paginatedQuestions.begin + 1 : 0}}
+                                to {{questionsFilter.paginatedQuestions.end}} of {{questionsFilter.filteredQuestions.length}} entries
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6" style="padding-top: 2px;">
+                            <ngb-pagination [boundaryLinks]="false" [collectionSize]="questionsFilter.filteredQuestions.length" [(page)]="page"
+                                [pageSize]="pageSize" [maxSize]="4" [rotate]="true" [ellipses]="true" size="sm"
+                                (pageChange)="changeAvailableQuestionsPage($event)" aria-label="Default pagination" *ngIf="questionsFilter.filteredQuestions.length > 0"
+                                class="pagination-no-margin">
+                                <ng-template ngbPaginationPrevious>
+                                    Previous
+                                </ng-template>
+                                <ng-template ngbPaginationNext>
+                                    Next
+                                </ng-template>
+                            </ngb-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

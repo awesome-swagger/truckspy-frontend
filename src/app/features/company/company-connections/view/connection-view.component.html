@@ -1,0 +1,180 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Company', 'Connections', connection.name]" icon="user"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+
+    <div class="row" *ngIf="connection && connection.error">
+        <div class="col-xs-12">
+            <div class="alert alert-danger fade in">
+                This connection is disabled due to a failure when we last attempted to sync. Support is working it.
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-4">
+            <form class="panel panel-default" #connectionForm="ngForm" (ngSubmit)="connectionForm.form.valid && save()">
+                <div class="panel-heading">
+                    <div class="pull-left">Connection Information</div>
+                    <div class="pull-right">
+                        <a class="action-link" *ngIf="!edit" (click)="beginEdit()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="edit">
+                            <button class="btn btn-xs btn-default" type="button"
+                                (click)="!connectionForm.resetForm() && cancelEdit()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5">Connection Name</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{connection.name}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': connectionForm.submitted && nameInput.invalid }">
+                                <input class="input input-xs form-control" name="name"
+                                    [(ngModel)]="connectionData.name" #nameInput="ngModel" required>
+
+                                <div *ngIf="connectionForm.submitted && nameInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="nameInput.errors.required">Please enter connection name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Connection Type</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{connection.type}}</label>
+                            <div class="col-sm-7" *ngIf="edit">
+                                <select style="width:100%" name="type" id="type" [(ngModel)]="connectionData.type" (ngModelChange)="onTypeChange($event)">
+                                    <option *ngFor="let t of connectionTypes" [value]="t.type">{{t.type}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Status</label>
+                            <label class="col-sm-7">
+                                {{connection.id && connection.status()}}&nbsp;
+                                <a class="action-link" (click)="toggleStatus(toggleStatusModal)" *ngIf="loaded && !edit">
+                                    {{connection.enabled ? "Disable" : "Enable"}}
+                                </a>
+                            </label>
+                        </div>
+
+                        <div class="form-group" *ngFor="let field of authFields">
+                            <label class="col-sm-5" for="{{field}}">{{field | capitalize}}</label>
+                            <div class="col-sm-7" *ngIf="!edit">
+                                <app-password-hider [fieldName]="field" [fieldValue]="connection.auth[field]"></app-password-hider>
+                            </div>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': connectionForm.submitted && fieldInput.invalid }">
+                                <input class="input input-xs form-control" name="{{field}}"
+                                    [(ngModel)]="connectionData.auth[field]" #fieldInput="ngModel" required>
+
+                                <div *ngIf="connectionForm.submitted && fieldInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="fieldInput.errors.required">Please enter {{field | capitalize}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="pull-left">Test Connection</div>
+                    <div class="pull-right">
+                        <div class="action-buttons-group">
+                            <button class="btn btn-xs btn-primary" type="button" [disabled]="testsInProgress" (click)="runTests()">Run Tests</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">Recent Ops</div>
+                <div class="panel-body no-padding override-child-dataTable-margin">
+                    <sa-datatable [options]="optionsOperations"
+                        tableClass="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-4">Operation</th>
+                                <th class="col-sm-2">Datetime</th>
+                                <th class="col-sm-2">Duration Seconds</th>
+                                <th class="col-sm-4">Status</th>
+                            </tr>
+                        </thead>
+                    </sa-datatable>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<ng-template #toggleStatusModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeToggleStatusModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">{{connection.enabled ? "Disable" : "Enable"}}</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" (ngSubmit)="doToggleStatus()">
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <span class="badge bg-color-red">
+                        <i class="fa-fw fa fa-warning"></i>
+                    </span>
+                    Are you sure?<br/>
+                    {{
+                        connection.enabled ?
+                        "Once disabled, we will no longer sync data from this connection. It can always be re-enabled but for certain connection types data may be lost." :
+                        "Once enabled, we will sync data from this connection."
+                    }}
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">{{connection.enabled ? "Disable" : "Enable"}}</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<div bsModal #detailsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeDetailsModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Error Operation Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-3">Operation</label>
+                        <label class="col-sm-9">{{theOperation.operation}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3">Status</label>
+                        <label class="col-sm-9">{{theOperation.errorReason}}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3">Details</label>
+                        <label class="col-sm-9">{{theOperation.errorMessage}}</label>
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-default" (click)="closeDetailsModal()">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

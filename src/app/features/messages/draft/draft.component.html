@@ -1,0 +1,94 @@
+<div class="sa-outlook-content-header">
+    <folder-selector></folder-selector>
+    <div class="btn-group">
+        <input type="search" placeholder="Search..." class="form-control message-search-input"
+        [(ngModel)]="query" (keyup.enter)="doSearch()">
+        <span class="fa fa-times message-search-clear" (click)="clearSearch()"></span>
+    </div>
+
+    <div class="btn-group" style="margin-left: 15px;">
+        <select class="message-driver-filter" data-select-search="true" select2 name="filterDriver"
+            [(ngModel)]="driverId" (changedAction)="doFilter($event)" [chooseOnTab]="true" [initValue]="''">
+            <option value="">All Drivers</option>
+            <option *ngFor="let driver of drivers" [value]="driver.id">{{driver.name()}}</option>
+        </select>
+    </div>
+
+    <div class="btn-group pull-right inbox-paging">
+        <button class="btn btn-default btn-sm" (click)="previousPage()" [disabled]="page <= 1">
+            <strong>
+                <i class="fa fa-chevron-left"></i>
+            </strong>
+        </button>
+        <button class="btn btn-default btn-sm" (click)="nextPage()" [disabled]="page >= totalPages">
+            <strong>
+                <i class="fa fa-chevron-right"></i>
+            </strong>
+        </button>
+    </div>
+    <span class="pull-right" style="padding-top: 6px;">
+        <strong>{{getRange()}}</strong> of
+        <strong>{{total}}</strong>
+    </span>
+</div>
+
+<div class="table-wrap custom-scroll sa-outlook-content">
+    <table id="inbox-table" class="dataTable table table-hover">
+        <thead>
+            <tr>
+                <th class="inbox-data-from hidden-xs hidden-sm" (click)="orderBy('receiverId')"
+                    [class.sorting]="sort !== 'receiverId'" [class.sorting_asc]="sort == 'receiverId' && ascending"
+                    [class.sorting_desc]="sort == 'receiverId' && !ascending">
+                    To
+                </th>
+                <th class="inbox-data-message">
+                    Message
+                </th>
+                <th class="inbox-data-date hidden-xs" (click)="orderBy('createdAt')"
+                    [class.sorting]="sort !== 'createdAt'" [class.sorting_asc]="sort == 'createdAt' && ascending"
+                    [class.sorting_desc]="sort == 'createdAt' && !ascending">
+                    Created
+                </th>
+                <th class="inbox-data-action">
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody *ngIf="messages && messages.length == 0">
+            <tr>
+                <td colspan="4" style="text-align: center;">
+                    <div>
+                        No draft messages
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        <tbody *ngIf="messages && messages.length > 0">
+            <tr *ngFor="let message of messages">
+                <td class="inbox-data-from hidden-xs hidden-sm" (click)="openDraftMessage(message)">
+                    <div>
+                        {{getDriverName(message.receiverId)}}
+                    </div>
+                </td>
+                <td class="inbox-data-message" (click)="openDraftMessage(message)">
+                    <div>
+                        <span>
+                            <message-labels [message]="message"></message-labels> {{message.getSubjectTeaser()}}
+                        </span>
+                        {{message.getBodyTeaser()}}
+                    </div>
+                </td>
+                <td class="inbox-data-date hidden-xs" (click)="openDraftMessage(message)">
+                    <div [title]="message.createdAt | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler">
+                        {{message.createdAt | messageDate}}
+                    </div>
+                </td>
+                <td class="inbox-data-action">
+                    <app-long-action-link [actionName]="'Send'" [actionParams]="[message]"
+                        (actionClicked)="send($event[0], $event[1])">
+                    </app-long-action-link>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

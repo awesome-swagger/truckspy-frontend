@@ -1,0 +1,250 @@
+<form class="panel panel-default" #companyForm="ngForm" (ngSubmit)="companyForm.form.valid && saveCompany()">
+    <div class="panel-heading">
+        <div class="pull-left">Company Information</div>
+        <div class="pull-right">
+            <a class="action-link" *ngIf="!editCompany" (click)="beginEditCompany()">Edit</a>
+            <div class="action-buttons-group" *ngIf="editCompany">
+                <button class="btn btn-xs btn-default" type="button"
+                    (click)="!companyForm.resetForm() && cancelEditCompany()">Cancel</button>
+                <button class="btn btn-xs btn-primary" type="submit">Save</button>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-5">Company Name</label>
+                <label class="col-sm-7" *ngIf="!editCompany">{{company.name}}</label>
+
+                <div class="col-sm-7" *ngIf="editCompany"
+                    [ngClass]="{ 'has-error': companyForm.submitted && nameInput.invalid }">
+                    <input class="input input-xs form-control" name="name" [(ngModel)]="companyData.name"
+                        #nameInput="ngModel" required>
+
+                    <div *ngIf="companyForm.submitted && nameInput.invalid" class="help-block">
+                        <div class="small" *ngIf="nameInput.errors.required">Please enter company name
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Address</label>
+                <label class="col-sm-7" *ngIf="!editCompany" style="white-space: pre-line;">
+                    {{((company.address1 && company.address1 + "&#13;&#10;") +
+                    (company.address2 && company.address2 + "\n") +
+                    (company.city && company.city + ",&nbsp;") +
+                    (company.state && company.state + "&nbsp;") +
+                    (company.zip)) || "N/A"}}
+                </label>
+                <div class="col-sm-7" *ngIf="editCompany">
+                    <input class="input input-xs form-control" name="address1" [(ngModel)]="companyData.address1">
+                </div>
+            </div>
+            <div class="form-group" *ngIf="editCompany">
+                <label class="col-sm-5">Address</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="address2" [(ngModel)]="companyData.address2">
+                </div>
+            </div>
+            <div class="form-group" *ngIf="editCompany">
+                <label class="col-sm-5">City</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="city" [(ngModel)]="companyData.city">
+                </div>
+            </div>
+            <div class="form-group" *ngIf="editCompany">
+                <label class="col-sm-5">State</label>
+                <div class="col-sm-7">  
+                    <select style="width:100%" name="state" id="state" [(ngModel)]="companyData.state">
+                        <option value="">-- None --</option>
+                        <option *ngFor="let s of states" [value]="s.key">{{s.value}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" *ngIf="editCompany">
+                <label class="col-sm-5">ZIP Code</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="zip" [(ngModel)]="companyData.zip">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-left">Billing Information</div>
+        <div class="pull-right">
+            <a class="action-link" *ngIf="!createCard" (click)="beginCreateCard()">{{source ? "Edit" : "Add"}}</a>
+            <div class="action-buttons-group" *ngIf="createCard">
+                <button class="btn btn-xs btn-default" type="button" (click)="cancelCreateCard()">Cancel</button>
+                <button class="btn btn-xs btn-primary" type="button" (click)="doCreateCard()">Save</button>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body" *ngIf="createCard">
+        <div class="form-horizontal">
+            <div class="form-group" style="padding-top: 3px; padding-bottom: 4px;">
+                <div class="col-sm-12">
+                    <stripe-card #stripeCard [(options)]="cardOptions" (catch)="onStripeError($event)"></stripe-card>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Name</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="edName" [(ngModel)]="extraData.name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Address</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="edAddress1" [(ngModel)]="extraData.address_line1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Address</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="edAddress2" [(ngModel)]="extraData.address_line2">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">City</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="edCity" [(ngModel)]="extraData.address_city">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">State</label>
+                <div class="col-sm-7">
+                    <!-- <input class="input input-xs form-control" name="edState" [(ngModel)]="extraData.address_state"> -->
+                    <select style="width:100%" name="edState" [(ngModel)]="extraData.address_state">
+                        <option value="">-- None --</option>
+                        <option *ngFor="let s of states" [value]="s.key">{{s.value}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">ZIP Code</label>
+                <div class="col-sm-7">
+                    <input class="input input-xs form-control" name="edZip" [(ngModel)]="extraData.address_zip">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Billed On</label>
+                <label class="col-sm-7">{{company.billedOn ? "Monthly, day " + company.billedOn : "N/A"}}</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-body" *ngIf="!createCard">
+        <div class="form-horizontal" *ngIf="!source">
+            <i>No Data</i>
+        </div>
+        <div class="form-horizontal" *ngIf="source">
+            <div class="form-group">
+                <label class="col-sm-5">Card</label>
+                <label class="col-sm-7">{{source.brand}}{{source.last4 && " ending in " + source.last4}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Name</label>
+                <label class="col-sm-7">{{source.name | naHandler}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Billing Address</label>
+                <label class="col-sm-7" style="white-space: pre-line;">
+                    {{((source.address_line1 && source.address_line1 + "\n") +
+                    (source.address_line2 && source.address_line2 + "\n") +
+                    (source.address_city && source.address_city + ",&nbsp;") +
+                    (source.address_state && source.address_state + "&nbsp;") +
+                    (source.address_zip)) || "N/A"}}
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Billed On</label>
+                <label class="col-sm-7">{{company.billedOn ? "Monthly, day " + company.billedOn : "N/A"}}</label>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <div class="pull-right">
+            <a routerLink="/company/invoices">View Subscriptions and Invoices</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-left">Default Reporting Profile</div>
+        <div class="pull-right">
+            <a class="action-link" (click)="setDefault(setDefaultModal)">Set Default</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-5">Name</label>
+                <label class="col-sm-7">{{company.defaultReportingProfile && company.defaultReportingProfile.name}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Entity&nbsp;Name</label>
+                <label class="col-sm-7">{{company.defaultReportingProfile && company.defaultReportingProfile.entityName}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Entity&nbsp;Identifier</label>
+                <label class="col-sm-7">{{company.defaultReportingProfile && company.defaultReportingProfile.entityIdentifier}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Report&nbsp;End&nbsp;Day</label>
+                <label class="col-sm-7">{{company.defaultReportingProfile && company.defaultReportingProfile.reportPeriodEnd}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Report&nbsp;Timezone</label>
+                <label class="col-sm-7">{{company.defaultReportingProfile && company.defaultReportingProfile.reportTimeZone}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5">Report&nbsp;Units</label>
+                <label class="col-sm-7">{{company.defaultReportingProfile && company.defaultReportingProfile.units}}</label>
+            </div>
+        </form>
+    </div>
+</div>
+
+<ng-template #setDefaultModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeSetDefaultModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Set Default Reporting Profile</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #setDefaultForm="ngForm"
+            (ngSubmit)="setDefaultForm.form.valid && doSetDefault()">
+            <div class="form-group">
+                <label class="col-sm-3" for="reportingProfileId">Assign To</label>
+                <div class="col-sm-9">
+                    <select style="width:100%" name="reportingProfileId" id="reportingProfileId"
+                        [(ngModel)]="setDefaultData.reportingProfileId">
+                        <option *ngFor="let rp of reportingProfiles" [value]="rp.id">{{rp.name}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <span class="badge bg-color-gray">
+                        <i class="fa-fw fa fa-info"></i>
+                    </span>
+                    All new drivers and vehicles will be assigned to this reporting profile.<br/>
+                    You can always reassign them once they are created.
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

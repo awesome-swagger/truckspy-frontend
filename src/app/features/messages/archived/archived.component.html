@@ -1,0 +1,146 @@
+<div class="sa-outlook-content-header">
+    <folder-selector></folder-selector>
+    <div class="inbox-checkbox-triggered">
+        <div class="btn-group">
+            <a (click)="readSelected()" placement="bottom" tooltip="Mark read" class="btn btn-default" [class.disabled]="selectedMessages.length == 0">
+                <strong>
+                    <i class="fa fa-file-text-o fa-lg"></i>
+                </strong>
+            </a>
+            <a (click)="unreadSelected()" placement="bottom" tooltip="Mark unread" class="btn btn-default" [class.disabled]="selectedMessages.length == 0">
+                <strong>
+                    <i class="fa fa-envelope fa-lg"></i>
+                </strong>
+            </a>
+            <a (click)="unarchiveSelected()" placement="bottom" tooltip="Unarchive" class="btn btn-default" [class.disabled]="selectedMessages.length == 0">
+                <strong>
+                    <i class="fa fa-recycle fa-lg"></i>
+                </strong>
+            </a>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <input type="search" placeholder="Search..." class="form-control message-search-input" [(ngModel)]="query"
+            (keyup.enter)="doSearch()">
+        <span class="fa fa-times message-search-clear" (click)="clearSearch()"></span>
+    </div>
+
+    <div class="btn-group" style="margin-left: 15px;">
+        <select class="message-driver-filter" data-select-search="true" select2 name="filterDriver"
+            [(ngModel)]="driverId" (changedAction)="doFilter($event)" [chooseOnTab]="true" [initValue]="''">
+            <option value="">All Drivers</option>
+            <option *ngFor="let driver of drivers" [value]="driver.id">{{driver.name()}}</option>
+        </select>
+    </div>
+
+    <div class="btn-group pull-right inbox-paging">
+        <button class="btn btn-default btn-sm" (click)="previousPage()" [disabled]="page <= 1">
+            <strong>
+                <i class="fa fa-chevron-left"></i>
+            </strong>
+        </button>
+        <button class="btn btn-default btn-sm" (click)="nextPage()" [disabled]="page >= totalPages">
+            <strong>
+                <i class="fa fa-chevron-right"></i>
+            </strong>
+        </button>
+    </div>
+    <span class="pull-right" style="padding-top: 6px;">
+        <strong>{{getRange()}}</strong> of
+        <strong>{{total}}</strong>
+    </span>
+</div>
+
+<div class="table-wrap custom-scroll sa-outlook-content">
+    <table id="inbox-table" class="dataTable table table-hover">
+        <thead>
+            <tr>
+                <th class="inbox-table-icon">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox style-2" [(ngModel)]="all" (ngModelChange)="selectAll($event)">
+                            <span></span>
+                        </label>
+                    </div>
+                </th>
+                <th class="inbox-data-from hidden-xs hidden-sm" (click)="orderBy('senderId')"
+                    [class.sorting]="sort !== 'senderId'" [class.sorting_asc]="sort == 'senderId' && ascending"
+                    [class.sorting_desc]="sort == 'senderId' && !ascending">
+                    From
+                </th>
+                <th class="inbox-data-message">
+                    Message
+                </th>
+                <th class="inbox-data-date hidden-xs" (click)="orderBy('createdAt')"
+                    [class.sorting]="sort !== 'createdAt'" [class.sorting_asc]="sort == 'createdAt' && ascending"
+                    [class.sorting_desc]="sort == 'createdAt' && !ascending">
+                    Date
+                </th>
+                <th class="inbox-data-action">
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody *ngIf="messages && messages.length == 0">
+            <tr>
+                <td colspan="5" style="text-align: center;">
+                    <div>
+                        No archived messages
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        <tbody *ngIf="messages && messages.length > 0">
+            <!-- It is possible to archive not only Inbox ones,
+                but unread ones are only Inbox ones -->
+            <tr [class.unread]="message.fromDriver() && !message.read" [class.danger]="!message.acknowledged"
+                *ngFor="let message of messages">
+                <td class="inbox-table-icon">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox style-2" [(ngModel)]="message.checked" (ngModelChange)="selectSingle($event, message)">
+                            <span></span>
+                        </label>
+                    </div>
+                </td>
+                <td class="inbox-data-from hidden-xs hidden-sm" (click)="openMessage(message)">
+                    <div>
+                        {{getDriverName(message.senderId)}}
+                    </div>
+                </td>
+                <td class="inbox-data-message" (click)="openMessage(message)">
+                    <div>
+                        <span>
+                            <message-labels [message]="message"></message-labels> {{message.getSubjectTeaser()}}
+                        </span>
+                        {{message.getBodyTeaser()}}
+                    </div>
+                </td>
+                <td class="inbox-data-date hidden-xs" (click)="openMessage(message)">
+                    <div [title]="message.createdAt | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler">
+                        {{message.createdAt | messageDate}}
+                    </div>
+                </td>
+                <td class="inbox-data-action">
+                    <!-- It is possible to archive not only Inbox ones,
+                        but let's show only Inbox action buttons for now -->
+                    <a class="btn btn-xs btn-default btn-circle pull-right" (click)="replyTo(message)"
+                        *ngIf="message.fromDriver()" title="Reply">
+                        <i class="fa fa-reply"></i>
+                    </a>
+                    <a class="btn btn-xs btn-default btn-circle pull-right" (click)="acknowledge(message)"
+                        *ngIf="message.fromDriver() && !message.acknowledged" title="Acknowledge">
+                        <i class="fa fa-check"></i>
+                    </a>
+                    <a class="btn btn-xs btn-default btn-circle pull-right disabled" style="pointer-events: auto; cursor: default;"
+                        *ngIf="message.fromDriver() && message.acknowledged" title="Acknowledged">
+                        <i class="fa fa-check" style="color: green;">
+                        </i>
+                    </a>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>

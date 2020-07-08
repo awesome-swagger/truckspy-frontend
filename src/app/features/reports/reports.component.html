@@ -1,0 +1,101 @@
+<div id="content">
+  <div class="row">
+    <!-- <sa-big-breadcrumbs [items]="['Reports']" icon="bar-chart-o" class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+    </sa-big-breadcrumbs> -->
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+      <h1 *ngIf="!showDetails" class="page-title txt-color-blueDark">
+        <i class="fa-fw fa fa-bar-chart-o"></i>Reports
+      </h1>
+      <h1 *ngIf="showDetails" class="page-title txt-color-blueDark">
+        <i class="fa-fw fa fa-bar-chart-o"></i>
+        <!-- <a *ngIf="showDetails" (click)="hideDetails()"><b>Reports</b></a> -->
+        <a *ngIf="showDetails" (click)="hideDetails()">Reports</a>
+        <span *ngIf="showDetails">> {{reportName | replaceUnderscore}}</span>
+      </h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-default">
+        <div class="panel-body" *ngIf="!reportNames || reportNames.length === 0">
+          <i>No reports available</i>
+        </div>
+
+        <div class="panel-body" *ngIf="reportNames && reportNames.length > 0">
+          <div class="col-sm-12 col-md-4 col-lg-2">
+            <label class="control-label">Report Type</label>
+            <select class="form-control" style="width:100%" name="reportName" id="reportName"
+              [(ngModel)]="reportData.reportName" (ngModelChange)="onReportNameChange($event)">
+              <option *ngFor="let r of reportNames" [value]="r">{{r | replaceUnderscore}}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-12 col-md-4 col-lg-3">
+            <label class="control-label">
+              Period
+            </label>
+            <label class="control-label pull-right">
+              Set time
+            </label>
+            <input type="checkbox" class="pull-right" [(ngModel)]="timeEnabled">
+            <input class="form-control" [(ngModel)]="reportData.period" [owlDateTimeTrigger]="dt" [owlDateTime]="dt"
+              [selectMode]="'range'" (dateTimeChange)="onPeriodChange($event)">
+            <owl-date-time [pickerType]="timeEnabled ? 'both' : 'calendar'" #dt></owl-date-time>
+          </div>
+
+          <div class="col-sm-12 col-md-4 col-lg-4">
+            <label class="control-label">Report Subject(s)</label>
+            <angular2-multiselect #multiselect [data]="reportEntities" [(ngModel)]="selectedEntities" [settings]="dropdownSettings"
+              (onOpen)="loadReportSubjects($event)" (ngModelChange)="onModelChange($event)">
+              <c-badge>
+                <ng-template let-item="item">
+                  <label style="width: 100%; margin-bottom: -1px; margin-top: 1px; display: inline-block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="{{item.name}}">
+                    {{item.name}}
+                  </label>
+                </ng-template>
+              </c-badge>
+            </angular2-multiselect>
+          </div>
+
+          <div class="col-sm-12 col-md-4 col-lg-2">
+            <label class="control-label">File Type</label>
+            <select class="form-control" style="width:100%" name="fileType" id="fileType"
+              [(ngModel)]="reportData.fileType">
+              <option *ngFor="let f of fileTypes" [value]="f">{{f}}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-12 col-md-4 col-lg-1">
+            <button class="btn btn-primary" style="margin-top: 23px;" type="button"
+              [disabled]="!selectedEntities || selectedEntities.length === 0" (click)="downloadReport()">
+              Download
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="reportNames && reportNames.length > 0">
+    <div class="col-sm-12 col-md-12 col-lg-12" *ngIf="!showDetails">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="col-sm-12 col-md-6 col-lg-4" *ngFor="let type of reportTypes">
+            <h6>{{type.productType | replaceUnderscore}}</h6>
+            <ng-container *ngFor="let report of type.reportNames">
+              &nbsp;&nbsp;&nbsp;<a (click)="doShowDetails(report)">{{report | replaceUnderscore}}</a>
+              <br />
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-sm-12 col-md-12 col-lg-8" *ngIf="showDetails">
+      <app-reports-table-reportbased [reportName]="reportName"></app-reports-table-reportbased>
+    </div>
+  </div>
+  
+</div>

@@ -1,0 +1,63 @@
+<div id="content">
+  <div class="row">
+    <sa-big-breadcrumbs [items]="['Fuel']" icon="fire" class="col-xs-8">
+    </sa-big-breadcrumbs>
+
+    <div class="col-xs-4" style="padding-top: 12px">
+      <ng-select *ngIf="entitiesLoaded" class="to-default to-default-250 dropdown-to-right pull-right"
+        style="width: 100%; max-width: 150px;" [items]="entities" bindLabel="name" [clearable]="false"
+        [(ngModel)]="entity" (ngModelChange)="onEntityChange($event)">
+        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+          <span [ngOptionHighlight]="search">
+            {{item.id === company.id ? "(Entire Fleet) " : ""}}{{item.name}}
+          </span>
+        </ng-template>
+        <ng-template ng-label-tmp let-item="item">
+          {{item.id === company.id ? "(Entire Fleet) " : ""}}{{item.name}}
+        </ng-template>
+      </ng-select>
+    </div>
+  </div>
+  <div class="row" *ngIf="statistics">
+    <div class="col-xs-12 col-sm-4">
+      <app-info-panel [iconName]="'road'" [iconColor]="'gray'" [label]="'Miles&nbsp;per&nbsp;gallon'"
+        [value]="statistics.averageEconomy | number:'1.2-2'" [timeLabel]="'30&nbsp;day&nbsp;avg'" class="pull-left">
+      </app-info-panel>
+    </div>
+    <div class="col-xs-12 col-sm-4">
+      <app-info-panel [iconName]="'tint'" [iconColor]="'black'" [label]="'Avg&nbsp;price&nbsp;per&nbsp;gallon'"
+        [value]="statistics.averagePrice | currency:'USD'" [timeLabel]="'30&nbsp;day&nbsp;avg'"
+        style="margin: 0 auto; display: table;">
+      </app-info-panel>
+    </div>
+    <div class="col-xs-12 col-sm-4">
+      <app-info-panel [iconName]="'usd'" [iconColor]="'green'" [label]="'Cents&nbsp;per&nbsp;mile&nbsp;in&nbsp;fuel'"
+        [value]="statistics.averageCostPerMile * 100 | number:'1.1-1'" [timeLabel]="'30&nbsp;day&nbsp;avg'"
+        style="float: right;">
+      </app-info-panel>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">Recent Transactions</div>
+        <div class="panel-body no-padding override-child-dataTable-margin">
+          <sa-datatable [options]="options" #transactionsTable
+            tableClass="table table-striped table-bordered table-hover" *ngIf="options">
+            <thead>
+              <tr>
+                <th class="col-sm-3">DateTime</th>
+                <th class="col-sm-3">Vehicle</th>
+                <th class="col-sm-1">Volume</th>
+                <th class="col-sm-1">Price&nbsp;Per</th>
+                <th class="col-sm-1">Total</th>
+                <th class="col-sm-3">Location</th>
+              </tr>
+            </thead>
+          </sa-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

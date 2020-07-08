@@ -1,0 +1,646 @@
+<div id="content">
+    <div class="header">
+        <sa-big-breadcrumbs [items]="['Dispatch']" icon="taxi">
+        </sa-big-breadcrumbs>
+        <div class="right-content">
+            <ng-select [items]="dispatchGroups" [(ngModel)]="dispatchGroupId" (change)="changeDispatchGroup()"
+                bindValue="id" bindLabel="name" class="filter-select" placeholder="Dispatch Group">
+            </ng-select>
+            <span>Bookings</span><switch [checked]="visibleBookings" (changed)="showBookings($event)"></switch>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="nav nav-tabs trips-left-tabs">
+                <li [class.active]="tripsTab === 'Plan'" style="width: 100%;">
+                    <a (click)="tripsTab !== 'Plan' && showPlan()">
+                        <span><i class="fa fa-circle" style="color: orange;"></i>&nbsp;Plan</span>
+                    </a>
+                </li>
+                <li [class.active]="tripsTab === 'Current'" style="width: 100%;">
+                    <a (click)="tripsTab !== 'Current' && showCurrent()">
+                        <span><i class="fa fa-circle" style="color: green;"></i>&nbsp;Current</span>
+                    </a>
+                </li>
+                <li [class.active]="tripsTab === 'Complete'" style="width: 100%;">
+                    <a (click)="tripsTab !== 'Complete' && showComplete()">
+                        <span><i class="fa fa-circle" style="color: gray;"></i>&nbsp;Complete</span>
+                    </a>
+                </li>
+            </div>
+
+            <div class="panel panel-default trips-content">
+                <!-- Trips Table -->
+                <div class="panel-heading" droppable (onDrop)="onBookingDrop(null, $event)"
+                    [dropScope]="'booking'" [dropEnabled]="tripsTab === 'Plan'">
+                    <ul class="nav nav-tabs">
+                        <li [class.active]="entityType === entityTypes.VEHICLE">
+                            <a (click)="entityType !== entityTypes.VEHICLE && showVehicle()">
+                                <span><i class="fa fa-truck"></i>&nbsp;Vehicles</span>
+                            </a>
+                        </li>
+                        <li [class.active]="entityType === entityTypes.DRIVER">
+                            <a (click)="entityType !== entityTypes.DRIVER && showDriver()">
+                                <span><i class="fa fa-user"></i>&nbsp;Drivers</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="btn-group">
+                        <input class="panel-search" placeholder="Search..." name="searchTrips" id="searchTrips"
+                            [(ngModel)]="tSearch" type="text">
+                        <span class="fa fa-times message-search-clear" (click)="tSearch = ''"></span>
+                    </div>
+
+                    <!-- <a class="action-link" (click)="addTrip(addTripModal)" *ngIf="typesLoaded && customersLoaded">
+                        New Trip
+                    </a> -->
+                </div>
+
+                <div class="panel-body no-padding" *ngVar="{
+                    filteredItems: items | tripsHandlerItemSearch:tSearch,
+                    paginatedItems: items | tripsHandlerItemSearch:tSearch | arrayPagination:tripsPage:tripsPageSize
+                } as itemsFilter">
+                    <table class="responsive table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-1">{{entityType === entityTypes.VEHICLE ? "Vehicle" : "Driver"}}</th>
+                                <th class="text-center">Stops</th>
+                                <th class="col-sm-1">Trip&nbsp;No</th>
+                                <th class="col-sm-1">Status</th>
+                                <th class="col-sm-2">Origin</th>
+                                <th class="col-sm-1">Load Date</th>
+                                <th class="col-sm-2">Destination</th>
+                                <th class="col-sm-1">Delv Date</th>
+                                <th class="col-sm-1">Est&nbsp;Duration</th>
+                                <th class="col-sm-1">Est&nbsp;Complete</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="!itemsFilter.paginatedItems.array || itemsFilter.paginatedItems.array.length === 0">
+                            <tr>
+                                <td class="trips-notrips" colspan="10">
+                                    No trips
+                                </td>
+                            </tr>
+                        </tbody>
+                        <ng-container *ngIf="!!itemsFilter.paginatedItems.array && itemsFilter.paginatedItems.array.length > 0">
+                            <tbody *ngFor="let item of itemsFilter.paginatedItems.array" droppable (onDrop)="onBookingDrop(item, $event)"
+                                [dropScope]="'booking'" [dropEnabled]="tripsTab === 'Plan'">
+                                <ng-container *ngFor="let trip of item.trips; let i = index">
+                                    <tr [class.success]="trip.status === tripStatuses.PREASSIGNED"
+                                        draggable [dragData]="{trip: trip, entity: item.getEntity()}" [dragScope]="'trip'" [dragEnabled]="trip.status === tripStatuses.PREASSIGNED">
+                                        <td class="col-sm-1">
+                                            <ng-container *ngIf="i === 0">
+                                                <ng-container *ngIf="entityType === entityTypes.VEHICLE">
+                                                    <app-vehicle-map-modal [vehicle]="item.vehicle" [highlight]="tSearch"></app-vehicle-map-modal>
+                                                </ng-container>
+                                                <ng-container *ngIf="entityType === entityTypes.DRIVER">
+                                                    <a *ngIf="entityType === entityTypes.DRIVER" href="#/drivers/{{item.driver.id}}/view">
+                                                        <span ngxTextHighlight [content]="item.driver.name() + ' (' + (item.driver.remoteId || '(unspecified)') + ')'" [searchTerm]="tSearch"  [caseSensitive]="false">
+                                                        </span>
+                                                    </a>
+                                                </ng-container>
+                                            </ng-container>
+                                        </td>
+                                        <td class="text-center">
+                                            <a (click)="tripsCollapseMap[item.getEntity().id + '.' + trip.id] =
+                                                        !tripsCollapseMap[item.getEntity().id + '.' + trip.id]"
+                                                class="button-icon">
+                                                <i class="fa"
+                                                    [class.fa-plus]="!tripsCollapseMap[item.getEntity().id + '.' + trip.id]"
+                                                    [class.fa-minus]="tripsCollapseMap[item.getEntity().id + '.' + trip.id]">
+                                                </i>
+                                            </a>
+                                        </td>
+                                        <td class="col-sm-1">
+                                            <span ngxTextHighlight [content]="trip.tripNo" [searchTerm]="tSearch"  [caseSensitive]="false">
+                                            </span>
+                                            <app-trip-audit-modal *ngIf="connectionsLoaded" [trip]="trip" [connections]="connections" [drivers]="drivers">
+                                            </app-trip-audit-modal>
+                                        </td>
+                                        <td class="col-sm-1">
+                                            <span ngxTextHighlight [content]="trip.status | titlecase" [searchTerm]="tSearch"  [caseSensitive]="false">
+                                            </span>
+                                        </td>
+                                        <td class="col-sm-2">
+                                            <ng-container *ngTemplateOutlet="stopLocation; context: {stop: trip.getFirstStop('PICKUP'), query: tSearch}"></ng-container>
+                                        </td>
+                                        <td class="col-sm-1">
+                                            <ng-container *ngTemplateOutlet="stopDate; context: {stop: trip.getFirstStop('PICKUP'), key: 'appointmentFrom'}"></ng-container>
+                                        </td>
+                                        <td class="col-sm-2">
+                                            <ng-container *ngTemplateOutlet="stopLocation; context: {stop: trip.getLastStop('DROP'), query: tSearch}"></ng-container>
+                                        </td>
+                                        <td class="col-sm-1">
+                                            <ng-container *ngTemplateOutlet="stopDate; context: {stop: trip.getLastStop('DROP'), key: 'appointmentFrom'}"></ng-container>
+                                        </td>
+                                        <td class="col-sm-1"></td>
+                                        <td class="col-sm-1"></td>
+                                    </tr>
+
+                                    <ng-container *ngIf="tripsCollapseMap[item.getEntity().id + '.' + trip.id]">
+                                        <ng-container *ngTemplateOutlet="stopsSubtable; context: {stops: trip.stops, leftColspan: 2, success: trip.status === tripStatuses.PREASSIGNED}"></ng-container>
+                                    </ng-container>
+                                </ng-container>
+                            </tbody>
+                        </ng-container>
+                    </table>
+                    <div class="dt-toolbar-footer">
+                        <div class="col-sm-6 col-xs-12 hidden-xs">
+                            <div class="dataTables_info" role="status" style="padding-top: 9px; padding-bottom: 6px;">
+                                Showing {{itemsFilter.filteredItems.length > 0 ? itemsFilter.paginatedItems.begin + 1 : 0}}
+                                to {{itemsFilter.paginatedItems.end}} of {{itemsFilter.filteredItems.length}} {{entityType === entityTypes.VEHICLE ? 'vehicles' : 'drivers'}}
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6" style="padding-top: 2px;">
+                            <ngb-pagination [boundaryLinks]="false" [collectionSize]="itemsFilter.filteredItems.length" [(page)]="tripsPage"
+                                [pageSize]="tripsPageSize" [maxSize]="4" [rotate]="true" [ellipses]="true" size="sm"
+                                (pageChange)="changeTripsPage($event)" aria-label="Default pagination" *ngIf="itemsFilter.filteredItems.length > 0"
+                                class="pagination-no-margin">
+                                <ng-template ngbPaginationPrevious>
+                                    Previous
+                                </ng-template>
+                                <ng-template ngbPaginationNext>
+                                    Next
+                                </ng-template>
+                            </ngb-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div *ngIf="visibleBookings" class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading" droppable (onDrop)="onTripDrop($event)" [dropScope]="'trip'">
+                    <ul class="nav nav-tabs">
+                        <li [class.active]="status === statuses.AVAILABLE">
+                            <a (click)="status !== statuses.AVAILABLE && showAvailable()">
+                                <span><i class="fa fa-tags"></i>&nbsp;Available</span>
+                            </a>
+                        </li>
+                        <li [class.active]="status === statuses.DISPATCHED">
+                            <a (click)="status !== statuses.DISPATCHED && showDispatched()">
+                                <span><i class="fa fa-spinner" style="color: orange;"></i>&nbsp;Dispatched</span>
+                            </a>
+                        </li>
+                        <li [class.active]="status === statuses.COMPLETED">
+                            <a (click)="status !== statuses.COMPLETED && showCompleted()">
+                                <span><i class="fa fa-check-circle-o" style="color: green;"></i>&nbsp;Completed</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="btn-group">
+                        <input class="panel-search" placeholder="Search..." name="searchBookings" id="searchBookings"
+                            [(ngModel)]="bSearch" type="text">
+                        <span class="fa fa-times message-search-clear" (click)="bSearch = ''"></span>
+                    </div>
+
+                    <div class="spacer"></div>
+
+                    <app-create-booking [linkName]="'New Booking'" (callback)="refreshBookingsTable()"
+                        [customers]="customers" [types]="types" [feedbackTypes]="feedbackTypes" [locations]="locations"
+                        *ngIf="typesLoaded && customersLoaded">
+                    </app-create-booking>
+                </div>
+
+                <div class="panel-body no-padding" *ngVar="{
+                    filteredBookings: bookings | bookingSearch:bSearch,
+                    paginatedBookings: bookings | bookingSearch:bSearch | arrayPagination:bookingsPage:bookingsPageSize
+                } as bookingsFilter">
+                    <table class="responsive table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Stops</th>
+                                <th class="col-sm-1">Book&nbsp;No</th>
+                                <th class="col-sm-1">Customer</th>
+                                <th class="col-sm-2">Origin</th>
+                                <th class="col-sm-1">Load Date</th>
+                                <th class="col-sm-1">Load No</th>
+                                <th class="col-sm-2">Destination</th>
+                                <th class="col-sm-1">Delv Date</th>
+                                <th class="col-sm-1">Est&nbsp;Duration</th>
+                                <!-- <th class="col-sm-2">Est Duration</th> -->
+                                <th class="col-sm-1">Vehicle&nbsp;Type</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="!bookingsFilter.paginatedBookings.array || bookingsFilter.paginatedBookings.array.length === 0">
+                            <tr>
+                                <td colspan="10" style="text-align: center; vertical-align: middle;">
+                                    No bookings
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody *ngIf="!!bookingsFilter.paginatedBookings.array && bookingsFilter.paginatedBookings.array.length > 0">
+                            <ng-container *ngFor="let booking of bookingsFilter.paginatedBookings.array">
+                                <tr draggable [dragData]="booking" [dragScope]="'booking'"
+                                    [dragEnabled]="booking.status === statuses.AVAILABLE && vehiclesLoaded && driversLoaded">
+                                    <td class="text-center">
+                                        <a (click)="bookingsCollapseMap[booking.id] = !bookingsCollapseMap[booking.id]"
+                                            class="button-icon">
+                                            <i class="fa"
+                                                [class.fa-plus]="!bookingsCollapseMap[booking.id]"
+                                                [class.fa-minus]="bookingsCollapseMap[booking.id]">
+                                            </i>
+                                        </a>
+                                    </td>
+                                    <td class="col-sm-1">
+                                        <a href="#/bookings/{{booking.id}}/view">
+                                            <span ngxTextHighlight [content]="booking.bookNo" [searchTerm]="bSearch"  [caseSensitive]="false">
+                                            </span>
+                                        </a>
+                                    </td>
+                                    <td class="col-sm-1">
+                                        <a href="#/customers/{{booking.customer.id}}/view">
+                                            <span ngxTextHighlight [content]="booking.customer.name" [searchTerm]="bSearch"  [caseSensitive]="false">
+                                            </span>
+                                        </a>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <ng-container *ngTemplateOutlet="stopLocation; context: {stop: booking.getFirstStop('PICKUP'), query: bSearch}"></ng-container>
+                                    </td>
+                                    <td class="col-sm-1">
+                                        <ng-container *ngTemplateOutlet="stopDate; context: {stop: booking.getFirstStop('PICKUP'), key: 'appointmentFrom'}"></ng-container>
+                                    </td>
+                                    <td class="col-sm-1">
+                                        <ng-container>{{booking.bolNo}}</ng-container>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <ng-container *ngTemplateOutlet="stopLocation; context: {stop: booking.getLastStop('DROP'), query: bSearch}"></ng-container>
+                                    </td>
+                                    <td class="col-sm-1">
+                                        <ng-container *ngTemplateOutlet="stopDate; context: {stop: booking.getLastStop('DROP'), key: 'appointmentFrom'}"></ng-container>
+                                    </td>
+                                    <td class="col-sm-1"></td>
+                                    <td class="col-sm-1">
+                                        {{booking.vehicleType && booking.vehicleType.type}}
+                                    </td>
+                                </tr>
+                                <ng-container *ngIf="bookingsCollapseMap[booking.id]">
+                                    <ng-container *ngTemplateOutlet="stopsSubtable; context: {stops: booking.stops, leftColspan: 1, success: false}"></ng-container>
+                                </ng-container>
+                            </ng-container>
+                        </tbody>
+                    </table>
+
+                    <div class="dt-toolbar-footer">
+                        <div class="col-sm-6 col-xs-12 hidden-xs">
+                            <div class="dataTables_info" role="status" style="padding-top: 9px; padding-bottom: 6px;">
+                                Showing {{bookingsFilter.filteredBookings.length > 0 ? bookingsFilter.paginatedBookings.begin + 1 : 0}}
+                                to {{bookingsFilter.paginatedBookings.end}} of {{bookingsFilter.filteredBookings.length}} entries
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6" style="padding-top: 2px;">
+                            <ngb-pagination [boundaryLinks]="false" [collectionSize]="bookingsFilter.filteredBookings.length" [(page)]="bookingsPage"
+                                [pageSize]="bookingsPageSize" [maxSize]="4" [rotate]="true" [ellipses]="true" size="sm"
+                                (pageChange)="changeBookingsPage($event)" aria-label="Default pagination" *ngIf="bookingsFilter.filteredBookings.length > 0"
+                                class="pagination-no-margin">
+                                <ng-template ngbPaginationPrevious>
+                                    Previous
+                                </ng-template>
+                                <ng-template ngbPaginationNext>
+                                    Next
+                                </ng-template>
+                            </ngb-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #stopLocation let-stop="stop" let-query="query">
+    <ng-container *ngIf="!!stop && stop.isLocation()">
+        <app-location-map-modal [location]="stop.location" [highlight]="query"></app-location-map-modal>
+    </ng-container>
+    <ng-container *ngIf="!!stop && !stop.isLocation()">
+        <span ngxTextHighlight [content]="stop.address.getAddress()" [searchTerm]="query"  [caseSensitive]="false">
+        </span>
+    </ng-container>
+</ng-template>
+
+<ng-template #stopDate let-stop="stop" let-key="key">
+    <ng-container *ngIf="!!stop">
+        {{stop[key] | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss'}}
+    </ng-container>
+</ng-template>
+
+<ng-template #stopsSubtable let-stops="stops" let-leftColspan="leftColspan" let-success="success">
+    <tr>
+        <th [attr.colspan]="leftColspan"></th>
+        <th [class.success]="success">Order</th>
+        <th [class.success]="success">Stop Type</th>
+        <th [class.success]="success">Stop Location</th>
+        <th [class.success]="success">Appointment Date</th>
+        <th colspan="2" [class.success]="success">Required Feedback</th>
+        <th [attr.colspan]="4 - leftColspan"></th>
+    </tr>
+    <tr *ngFor="let stop of stops">
+        <td [attr.colspan]="leftColspan"></td>
+        <td [class.success]="success">
+            {{stop.stopOrder}}
+        </td>
+        <td [class.success]="success">
+            {{stop.type | lowercase | titlecase}}
+        </td>
+        <td [class.success]="success">
+            <app-location-map-modal [location]="stop.location" *ngIf="!!stop.location"></app-location-map-modal>
+            <label *ngIf="!stop.location && !!stop.address">
+                {{stop.address.getAddress()}}
+            </label>
+        </td>
+        <td [class.success]="success">
+            {{stop.appointmentFrom | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler}}
+        </td>
+        <td colspan="2" [class.success]="success">
+            {{stop.getFeedbackTypesText()}}
+        </td>
+        <td [attr.colspan]="4 - leftColspan"></td>
+    </tr>
+</ng-template>
+
+<div bsModal #unassignTripModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeUnassignTripModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Unassign Trip</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    Are you sure you want to unassign trip <b>{{unassignTrip.trip && unassignTrip.trip.tripNo || '(unspecified)'}}</b>
+                    from <b>{{unassignTrip.entity && unassignTrip.entity.remoteId || '(unspecified)'}}</b>?
+                    <br/>
+                </div>
+                <div class="text-right">
+                    <button class="btn btn-primary" (click)="doUnassignTrip()">Unassign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #addTripModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeTripModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Create Trip & Dispatch</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" #addTripForm="ngForm" (ngSubmit)="addTripForm.form.valid && doCreateTrip()">
+                    <div class="form-group">
+                        <label class="col-sm-2" for="bookingNo">Booking No</label>
+                        <div class="col-sm-3">
+                            <a *ngIf="!!tripData && !!tripData.booking" href="#/bookings/{{tripData.booking.id}}/view">
+                                {{tripData.booking.bookNo}}
+                            </a>
+                            <!-- <select style="width:100%" name="bookingNo" id="bookingNo" [(ngModel)]="tripData.bookingId"
+                                [disabled]="availableBookings.length === 0" *ngIf="!tripData.booking">
+                                <option *ngFor="let b of availableBookings" [value]="b.id">{{b.bookNo}}</option>
+                            </select>
+
+                            <div *ngIf="!tripData.booking && availableBookings.length === 0" class="help-block">
+                                <div class="small">Please create a customer
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2" for="customer">Customer</label>
+                        <div class="col-sm-3">
+                            <a *ngIf="!!tripData && !!tripData.booking" href="#/customers/{{tripData.booking.customer.id}}/view">
+                                {{tripData.booking.customer.name}}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2" for="vehicleType">Vehicle Type</label>
+                        <div class="col-sm-3">
+                            <i *ngIf="!!tripData && !!tripData.booking">
+                                {{tripData.booking.vehicleType && tripData.booking.vehicleType.type}}
+                            </i>
+                        </div>
+                    </div>
+
+                    <h6>Resources</h6>
+                    <div class="form-horizontal tables-flat">
+                        <table class="table table-condensed" style="width: 50%">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-4">Type</th>
+                                    <th class="col-sm-8">Resource</th>
+                                    <th class="">
+                                        <button class="btn btn-xs btn-success" type="button" (click)="addResource()">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngIf="!!tripData && !!tripData.resources">
+                                    <tr *ngFor="let resource of tripData.resources; index as order">
+                                        <td class="col-sm-4">
+                                            <select style="width:100%;" name="resourceType{{resource.id}}" [(ngModel)]="resource.entityType"
+                                                (ngModelChange)="onTypeChange(resource, $event)" [disabled]="!resource.removable || !resource.editable">
+                                                <option *ngFor="let rt of resourceTypes" [value]="rt">{{rt | lowercase | titlecase}}</option>
+                                            </select>
+                                        </td>
+                                        <td class="col-sm-8">
+                                            <ng-container *ngIf="resource.entityType === 'Vehicle'">
+                                                <ng-select class="to-default" name="vehicle{{resource.id}}" id="vehicle{{resource.id}}"
+                                                    [items]="applicableVehicles" bindLabel="remoteId" bindValue="id" [clearable]="false"
+                                                    [(ngModel)]="resource.entityId" dropdownPosition="bottom"
+                                                    [disabled]="!resource.editable || applicableVehicles.length === 0">
+                                                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                                                        <div class="ng-value">
+                                                            <span class="ng-value-label">{{item.remoteId}}</span>
+                                                        </div>
+                                                    </ng-template>
+                                                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                                        <span [ngOptionHighlight]="search">{{item.remoteId}}</span>
+                                                    </ng-template>
+                                                </ng-select>
+                                                <!-- <select style="width: 100%;" data-select-search="true" select2 [(ngModel)]="resource.entityId"
+                                                    (changedAction)="resourceChanged(resource, $event)" [chooseOnTab]="true" name="vehicle{{resource.id}}"
+                                                    id="vehicle{{resource.id}}" [disabled]="!resource.editable || applicableVehicles.length === 0">
+                                                    <option *ngFor="let vehicle of applicableVehicles" [value]="vehicle.id">{{vehicle.remoteId || '(unspecified)'}}</option>
+                                                </select> -->
+
+                                                <div *ngIf="applicableVehicles.length === 0" class="help-block">
+                                                    <div class="small" style="color: red;">No vehicles of the specified type
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                            <ng-container *ngIf="resource.entityType === 'Driver'">
+												<ng-select class="to-default" name="driver{{resource.id}}" id="driver{{resource.id}}"
+                                                    [items]="activeDrivers" bindLabel="remoteId" bindValue="id" [clearable]="false"
+                                                    [(ngModel)]="resource.entityId" dropdownPosition="bottom" [disabled]="!resource.editable || activeDrivers.length === 0">
+                                                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                                        <span [ngOptionHighlight]="search">{{item.remoteId}}</span>
+                                                    </ng-template>
+                                                </ng-select>
+                                                <!-- <select style="width: 100%;" data-select-search="true" select2 [(ngModel)]="resource.entityId"
+                                                    (changedAction)="resourceChanged(resource, $event)" [chooseOnTab]="true"
+                                                    name="driver{{resource.id}}" id="driver{{resource.id}}" [disabled]="!resource.editable || activeDrivers.length === 0">
+                                                    <option *ngFor="let driver of activeDrivers" [value]="driver.id">{{driver.name() || '(unspecified)'}}</option>
+                                                </select> -->
+
+                                                <div *ngIf="activeDrivers.length === 0" class="help-block">
+                                                    <div class="small" style="color: red;">No active drivers to select
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+                                        </td>
+                                        <td class="">
+                                            <button class="btn btn-xs btn-default" type="button" (click)="deleteResource(order)" *ngIf="resource.removable">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                            <!-- {{resource.entityType}} -->
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+
+                    <h6>Stops</h6>
+                    <div class="form-horizontal tables-flat">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-1">Order</th>
+                                    <th class="col-sm-4">Location</th>
+                                    <th class="col-sm-3">Arrive Date</th>
+                                    <th class="col-sm-2">Stop Type</th>
+                                    <th class="col-sm-2">Required Feedback</th>
+                                    <th class="">
+                                        <button class="btn btn-xs btn-success" type="button" (click)="addStop()">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngIf="!!tripData && !!tripData.bookingStops">
+                                    <tr *ngFor="let stop of tripData.bookingStops">
+                                        <td class="col-sm-1">
+                                            {{stop.stopOrder}}
+                                        </td>
+                                        <td class="col-sm-4">
+                                            <app-location-map-modal [location]="stop.location" *ngIf="!!stop.location">
+                                            </app-location-map-modal>
+                                            <label *ngIf="!stop.location && !!stop.address">
+                                                {{stop.address.getAddress()}}
+                                            </label>
+                                        </td>
+                                        <td class="col-sm-3">
+                                            {{stop.arriveDate | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler}}
+                                        </td>
+                                        <td class="col-sm-2">
+                                            {{stop.loadedType | lowercase | titlecase}}
+                                        </td>
+                                        <td class="col-sm-2">
+                                            {{stop.getFeedbackTypesText()}}
+                                        </td>
+                                        <td class=""></td>
+                                    </tr>
+                                </ng-container>
+                                <ng-container *ngIf="!!tripData && !!tripData.stops">
+                                    <tr *ngFor="let stop of tripData.stops; index as order">
+                                        <td class="col-sm-1">
+                                            {{tripData.stopsBegin + order + 1}}
+                                        </td>
+                                        <td class="col-sm-4">
+                                            <label for="isLocation{{stop.id}}" *ngIf="locations.length > 0">
+                                                <input name="isLocation{{stop.id}}" id="isLocation{{stop.id}}" [(ngModel)]="stop.isLocation"
+                                                    style="vertical-align: -2px;" type="checkbox">
+                                                Select Location
+                                            </label>
+
+                                            <div *ngIf="stop.isLocation">
+                                                <ng-select class="to-default" name="location{{stop.id}}"
+                                                    [items]="locations" bindLabel="name" bindValue="id" [clearable]="false"
+                                                    [(ngModel)]="stop.locationId" dropdownPosition="bottom">
+                                                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                                        <span [ngOptionHighlight]="search">{{item.name}}</span>
+                                                    </ng-template>
+                                                </ng-select>
+                                            </div>
+
+                                            <div *ngIf="!stop.isLocation">
+                                                <app-address-input [address]="stop.address" [prefix]="order" [compact]="true"></app-address-input>
+                                            </div>
+                                        </td>
+                                        <td class="col-sm-3">
+                                            <div class="input-group">
+                                                <input [(ngModel)]="stop.arriveDate" [owlDateTimeTrigger]="dt" [owlDateTime]="dt"
+                                                    name="arriveDate{{stop.id}}" class="form-control" style="height: 24px; padding-left: 4px;">
+                                                <span class="input-group-addon" style="height: 24px; padding: 4.2px;">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                                <owl-date-time #dt></owl-date-time>
+                                            </div>
+                                        </td>
+                                        <td class="col-sm-2">
+                                            <select style="width:100%" name="loadedType{{stop.id}}" [(ngModel)]="stop.loadedType">
+                                                <option *ngFor="let lt of loadedTypes" [value]="lt">{{lt | lowercase | titlecase}}</option>
+                                            </select>
+                                        </td>
+                                        <td class="col-sm-2">
+                                            <label *ngIf="feedbackTypes.length === 0">
+                                                <i>No feedback types to select</i>
+                                            </label>
+                                            <ng-select class="to-default" name="feedback{{stop.id}}" *ngIf="feedbackTypes.length > 0"
+                                                [items]="feedbackTypes" bindLabel="name" bindValue="id" [closeOnSelect]="false"
+                                                [(ngModel)]="stop.requiredFeedbackTypes" [multiple]="true" dropdownPosition="bottom">
+                                                <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
+                                                    <div class="ng-value">
+                                                        <span class="ng-value-label" *ngIf="items.length === 1">Selected {{items.length}} type</span>
+                                                        <span class="ng-value-label" *ngIf="items.length > 1">Selected {{items.length}} types</span>
+                                                    </div>
+                                                </ng-template>
+                                                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                                                    <span [ngOptionHighlight]="search">{{item.name}}</span>
+                                                </ng-template>
+                                            </ng-select>
+                                        </td>
+                                        <td class="">
+                                            <button class="btn btn-xs btn-default" type="button" (click)="deleteStop(order)">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+
+                    <div class="text-right">
+                        <button class="btn btn-default" type="button" (click)="closeTripModal()">
+                            Cancel
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-primary" type="submit"
+                            [disabled]="applicableVehicles.length === 0 || !typesLoaded">
+                            <!-- {{availableBookings.length === 0}} -->
+                            Assign
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

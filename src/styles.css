@@ -1,0 +1,586 @@
+
+/* You can add global styles to this file, and also import other style files */
+
+/* #GOOGLE FONT */
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700");
+
+@import "~mapbox-gl/dist/mapbox-gl.css";
+@import '~@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+@import "~ng-pick-datetime/assets/style/picker.min.css";
+@import "~@ng-select/ng-select/themes/default.theme.css";
+
+mgl-map {
+    height: 80vh;
+    width: 100%;
+}
+.mapbox-location-link-container {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mapbox-locations-panel {
+    float: left;
+    padding-left: 10px;
+    padding-right: 5px;
+    background: white; /* older browsers */
+    background: rgba(255,255,255,0.9); /* newer browsers */
+    height: 50vh;
+    min-height: 50vh;
+    max-height: 50vh;
+    overflow-y: auto;
+    width: 175px;
+}
+.mapbox-locations-panel ul.pagination {
+    margin-top: 5px;
+}
+.mapbox-locations-panel ul.pagination * {
+    font-size: x-small;
+    padding: 2px!important;
+}
+
+.mapbox-position-panel {
+    float: left;
+    padding-left: 10px;
+    padding-right: 5px;
+    background: white; /* older browsers */
+    background: rgba(255,255,255,0.9); /* newer browsers */
+    /* height: 30vh;
+    min-height: 30vh;
+    max-height: 30vh; */
+    height: 185px;
+    min-height: 185px;
+    max-height: 185px;
+    overflow-y: auto;
+    width: 220px;
+}
+.mapbox-position-results-panel table {
+    margin-bottom: 3px;
+}
+.mapbox-position-results-panel table * {
+    font-size: xx-small;
+    padding: 2px!important;
+}
+.mapbox-position-results-panel ul.pagination {
+    margin-top: 0px;
+}
+.mapbox-position-results-panel ul.pagination * {
+    font-size: x-small;
+    padding: 2px!important;
+}
+.mapbox-position-results-panel {
+    float: left;
+    padding-left: 10px;
+    padding-right: 5px;
+    background: white; /* older browsers */
+    background: rgba(255,255,255,0.9); /* newer browsers */
+    height: 40vh;
+    min-height: 40vh;
+    max-height: 40vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    width: 275px;
+}
+.mapbox-position-container {
+    margin-left: -10px;
+}
+
+table.positions-table tr th,
+table.positions-table tr td {
+    max-height: 16.8px;
+    height: 16.8px;
+    padding: 0px!important;
+    padding-left: 2px!important;
+    margin: 0px;
+}
+table.positions-table thead tr th {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+select[disabled] {
+    background-color: rgb(238, 238, 238);
+}
+
+.mapbox-typeahead {
+    border: none;
+    width: 250px;
+    margin-left: 5px;
+    padding-left: 5px;
+    float: left;
+    background: white; /* older browsers */
+    background: rgba(255,255,255,0.9); /* newer browsers */
+}
+.mapbox-control-fix div.mapboxgl-ctrl-top-left div.mapboxgl-ctrl {
+    height: 22px;
+}
+
+.desktop-detected{
+    min-height:190px!important;
+}
+
+div.tobedone:before,
+div.tobedone-medium:before,
+div.tobedone-small:before {
+    content: "LATER PHASE";
+    font-weight: 1000;
+    color: grey;
+}
+div.tobedone,
+div.tobedone-medium,
+div.tobedone-small {
+    border: 3px dotted;
+    background-color: lightgray;
+}
+div.tobedone {
+    min-height: 500px!important;
+}
+div.tobedone-medium {
+    min-height: 250px!important;
+}
+div.tobedone-small {
+    min-height: 100px!important;
+}
+
+.override-child-dataTable-margin {
+    margin-top: -6px;
+}
+.override-child-dataTable-margin div.dt-toolbar-footer {
+    margin-top: -6px!important;
+}
+
+.action-link,
+.action-link:hover {
+    text-decoration: underline;
+    text-decoration-style: dashed;
+    text-underline-position: under;
+    font-style: italic;
+}
+
+input.input-xs,
+div.action-buttons-group {
+    margin-top: -2px;
+    margin-bottom: -2px;
+}
+div.action-buttons-group > button {
+    margin-left: 3px;
+}
+
+form div.form-group div.help-block > div {
+    color: #b94a48;
+    margin-bottom: -5px;
+}
+
+div.table-no-data {
+    text-align: center;
+    vertical-align: middle;
+    line-height: 35.2px;
+    height: 35.2px;
+}
+
+div.tables-flat > table {
+    margin: 0px;
+}
+div.tables-flat > table th,
+div.tables-flat > table thead td {
+    background-color: white;
+}
+
+.table.fixed-layout {
+    table-layout: fixed;
+}
+.table.fixed-layout td.fixed-layout-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hidden-long-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Fixed issue with ng-pick-datetime with modal */
+.cdk-overlay-container {
+    position: fixed;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    position: absolute;
+    z-index: 9999999 !important;
+}
+.cdk-global-overlay-wrapper, .cdk-overlay-container {
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    position: absolute;
+    z-index: 9999999 !important;
+}
+
+.dropdown-menu {
+    max-height: 300px;
+    width: 300px;
+    padding: 0px;
+    margin: 0px;
+}
+.dropdown-menu button.dropdown-item:not(:first-child) {
+    margin-top: -3px;
+}
+button.dropdown-item {
+    width: 299px;
+    background-color: white;
+    border: 1px solid lightgray;
+    min-height: 30px;
+}
+button.dropdown-item.active {
+    background-color: lightgray;
+}
+
+/* Fixes for <sa-activities> */
+.ajax-dropdown > :first-child {
+    margin: 0px;
+    padding: 0px;
+}
+.ajax-dropdown {
+    padding-top: 0px;
+    height: 390px;
+}
+
+.notification-wrapper {
+    position: relative;
+}
+.notification-wrapper .notification-close {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+}
+
+.ng-select.to-default {
+    border: 0px;
+    min-height: 0px;
+    border-radius: 0;
+}
+.ng-select.to-default .ng-select-container {
+    min-height: 0px;
+    border-radius: 0;
+    box-shadow: none!important;
+    border-color: rgb(169, 169, 169)!important;
+}
+
+.ng-select.to-default .ng-select-container,
+.ng-select.to-default .ng-option-label,
+.ng-select.to-default .ng-option,
+.ng-select.to-default .ng-select-container,
+.ng-select.to-default .ng-value-icon,
+.ng-select.to-default .ng-value-container,
+.ng-select.to-default .ng-value-label,
+.ng-select.to-default .ng-value,
+.ng-select.to-default .ng-input,
+.ng-select.to-default .ng-input input,
+.ng-select.to-default .ng-placeholder {
+    padding-left: 1px!important;
+    padding-top: 0px!important;
+    padding-bottom: 0px!important;
+    min-height: 21.2px!important;
+    max-height: 21.2px!important;
+    height: 21.2px!important;
+}
+.ng-select.to-default.ng-touched .ng-arrow-wrapper,
+.ng-select.to-default.ng-select-opened .ng-arrow-wrapper,
+.ng-select.to-default.ng-touched .ng-spinner-loader,
+.ng-select.to-default.ng-select-opened .ng-spinner-loader {
+    padding-top: 10px!important;
+}
+
+.ng-select.to-default.ng-touched .ng-value-icon,
+.ng-select.to-default.ng-touched .ng-value,
+.ng-select.to-default.ng-touched .ng-value-label,
+.ng-select.to-default.ng-select-opened .ng-value-icon,
+.ng-select.to-default.ng-select-opened .ng-value,
+.ng-select.to-default.ng-select-opened .ng-value-label {
+    padding-top: 5px!important;
+}
+
+/* Multi-select: redefine styles */
+.ng-select.to-default.ng-select-multiple .ng-value-icon,
+.ng-select.to-default.ng-select-multiple .ng-value-container,
+.ng-select.to-default.ng-select-multiple .ng-value-label {
+    margin-top: -5px!important;
+}
+.ng-select.to-default.ng-select-multiple.ng-touched .ng-arrow-wrapper,
+.ng-select.to-default.ng-select-multiple.ng-select-opened .ng-arrow-wrapper,
+.ng-select.to-default.ng-select-multiple.ng-touched .ng-spinner-loader,
+.ng-select.to-default.ng-select-multiple.ng-select-opened .ng-spinner-loader {
+    padding-top: 0px!important;
+}
+
+.ng-select.to-default.ng-untouched .ng-placeholder {
+    margin-top: 0px;
+}
+.ng-select.to-default.ng-select-focused .ng-placeholder,
+.ng-select.to-default .ng-placeholder {
+    margin-top: 10px;
+}
+
+.ng-select.to-default-250.dropdown-to-right .ng-dropdown-panel {
+    margin-left: -100px;
+}
+.ng-select.to-default-250 .ng-dropdown-panel {
+    width: 250px;
+}
+.ng-select.to-default-250 .ng-dropdown-panel-items {
+    width: 248px;
+}
+.ng-select.to-default-3items .ng-dropdown-panel {
+    max-height: 63.6px;
+}
+.ng-select.to-default-3items .ng-dropdown-panel-items {
+    max-height: 63.6px;
+}
+
+@media (min-width: 768px) {
+    .modal-dialog.modal-400 {
+        width: 400px;
+    }
+    .modal-dialog.modal-450 {
+        width: 450px;
+    }
+}
+
+.mapbox-popup-form-fix {
+    min-width: 240px;
+    width: 240px;
+}
+.mapbox-popup-form-fix div.form-group{
+    margin-bottom: 0px;
+    padding-right: 10px;
+}
+
+.position-active {
+    background-color: lightgray;
+}
+.position-not-processed {
+    background-color: rgb(255, 152, 255);
+}
+.position-error {
+    background-color: #f5c6cb;
+}
+
+.login-as {
+    padding: 5px 13px 0 13px;
+    height: 30px!important;
+    width: 100%!important;
+    background-color: yellow;
+}
+.sa-header-fix {
+    margin-right: 13px;
+}
+@media (max-width: 768px) {
+    .login-as {
+        padding: 5px 5px 0 5px;
+    }
+    .sa-header-fix {
+        margin-right: 5px;
+    }
+}
+
+/* Messages styling */
+.sa-outlook-content-header {
+    margin-left: 200px;
+    padding-top: 22px;
+    padding-right: 14px;
+    padding-left: 14px;
+}
+@media (max-width: 1024px) {
+    .sa-outlook-content-header {
+        margin-left: 0px;
+    }
+}
+@media (min-width: 1024px) {
+    .hidden-1024plus {
+        display: none!important;
+    }
+}
+@media (max-width:979px) {
+    .sa-outlook-content-header {
+        padding-bottom: 5px;
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+}
+.inbox-data-action {
+    width: 68px;
+}
+.inbox-data-acknowledge {
+    width: 5px;
+}
+.unread:hover td {
+    background: #e8e8e8!important;
+}
+.message-driver-filter {
+    width: 200px;
+    height: 32.4px;
+    border-color: rgb(204, 204, 204);
+}
+.message-search-input {
+    width: 200px;
+    height: 32.4px;
+    margin-left: 5px;
+    padding-left: 3px;
+    border-color: rgb(204, 204, 204);
+}
+.message-search-clear {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.email-open-header {
+    margin-top: 8px;
+}
+.message-textarea {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: 350px;
+    margin-bottom: -4px;
+    padding: 4px;
+}
+.inbox-info-bar {
+    margin: 0px;
+}
+.inbox-compose-footer {
+    margin: 0px;
+}
+
+.email-open-header span {
+    font-size: 10px;
+    font-weight: 400;
+    padding: 3px 5px;
+    letter-spacing: normal;
+    text-transform: uppercase;
+    vertical-align: middle;
+    line-height: 33px;
+    background: #ACACAC
+}
+.email-open-header label {
+    font-size: 13px;
+    font-weight: 400;
+    padding-top: 8px;
+    letter-spacing: normal;
+}
+
+.message-disabled-input:hover {
+    cursor: default!important;
+}
+.message-disabled-input {
+    background-color: #fafafa!important;
+}
+
+/* angular2-multiselect custom class/styling */
+.multiselect-32px .cuppa-dropdown .selected-list .c-token {
+    /* This width is very specific and corrects only when we show 3 badgesin a multiselect */
+    width: 30%;
+}
+.multiselect-32px .cuppa-dropdown .selected-list .c-token .c-label {
+    width: 100%;
+}
+
+.multiselect-32px .cuppa-dropdown,
+.multiselect-32px .cuppa-dropdown .selected-list,
+.multiselect-32px .cuppa-dropdown .selected-list .c-btn {
+    height: 32px!important;
+    max-height: 32px!important;
+    min-height: 32px!important;
+}
+
+/** Shortcuts styling */
+kbd {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.1em 0.5em;
+    margin: 0 0.2em;
+    box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
+    background-color: #f7f7f7;
+    color: black;
+}
+
+/* Define form-group helper override within a table */
+.small-form-group {
+    margin-bottom: 3px!important;
+}
+
+/* Define drag and drop stylings for table rows */
+.drag-border {
+    border: #ff525b dashed 3px!important;
+}
+.drag-hint-border {
+    border: #3c763d dashed 2px!important;
+}
+.drag-over-border {
+    border: #fbbc05 dashed 3px!important;
+}
+.drag-transit {
+    border: #3500FF dashed 2px!important;
+}
+
+.pagination-no-margin ul.pagination {
+    margin: 0px;
+}
+
+/* Extensions to Bootstrap col-xx-n classes */
+.col-0_7, .col-1_6, .col-1_7 .col-3_6, .col-1_4, .col-1_5 {
+    position: relative;
+    min-height: 1px;
+    padding-left: 13px;
+    padding-right: 13px;
+    float: left;
+}
+.col-0_7 {
+    width: 5.83333333%; /* 0.7 out of 12 */
+}
+.col-1_7 {
+    width: 14.16666666%; /* 1.7 out of 12 */
+}
+.col-3_6 {
+    width: 30.00000001%; /* 3.6 out of 12 */
+}
+.col-1_6 {
+    width: 13.33333334%; /* 1.6 out of 12 */
+}
+.col-1_4 {
+    width: 11.66666666%; /* 1.4 out of 12 */
+}
+.col-1_5 {
+    width: 12.49999999%; /* 1.4 out of 12 */
+}
+
+.question-form .form-group {
+    padding-left: 7px;
+    padding-right: 7px;
+}
+.question-text {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: 150px;
+    padding: 4px;
+}
+.question-checkbox .onoffswitch-container {
+    margin-top: 0px;
+    margin-left: -5px;
+}

@@ -1,0 +1,32 @@
+<a class="action-link" (click)="showVehicleMapModal(vehicleMapModal)">
+    <span ngxTextHighlight [content]="vehicle.remoteId || '(unspecified)'" [searchTerm]="highlight"  [caseSensitive]="false">
+    </span>
+</a>
+
+<ng-template #vehicleMapModal>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">Vehicle Information</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="closeVehicleMapModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-3">Id</label>
+                <label class="col-sm-9">
+                    <a href="#/vehicles/{{vehicle.id}}/view"  (click)="closeVehicleMapModal()">
+                        {{vehicle.remoteId || '(unspecified)'}}
+                    </a>
+                </label>
+            </div>
+        </form>
+
+        <ng-container *ngIf="!!vehicle && vehicle.hasLastPosition()">
+            <app-vehicle-map [vehicle]="vehicle"></app-vehicle-map>
+        </ng-container>
+        <ng-container *ngIf="!!vehicle || !vehicle.hasLastPosition()">
+            <i>No map specific data</i>
+        </ng-container>
+    </div>
+</ng-template>

@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+    <div class="panel-heading" style="padding-bottom: 0px;">
+        Fuel
+        <div *ngIf="statistics">
+            <div class="col-xs-12 col-sm-4 statistics-holder-header" style="padding-left: 0px;">
+                <app-info-panel [iconName]="'road'" [iconColor]="'gray'" [label]="'Miles&nbsp;per&nbsp;gallon'"
+                    [value]="statistics.averageEconomy | number:'1.2-2'" [timeLabel]="'30&nbsp;day&nbsp;avg'" class="pull-left">
+                </app-info-panel>
+            </div>
+            <div class="col-xs-12 col-sm-4 statistics-holder-header">
+                <app-info-panel [iconName]="'tint'" [iconColor]="'black'" [label]="'Avg&nbsp;price&nbsp;per&nbsp;gallon'"
+                    [value]="statistics.averagePrice | currency:'USD'" [timeLabel]="'30&nbsp;day&nbsp;avg'"
+                    style="margin: 0 auto; display: table;">
+                </app-info-panel>
+            </div>
+            <div class="col-xs-12 col-sm-4 statistics-holder-header" style="padding-right: 0px;">
+                <app-info-panel [iconName]="'usd'" [iconColor]="'green'" [label]="'Cents&nbsp;per&nbsp;mile&nbsp;in&nbsp;fuel'"
+                    [value]="statistics.averageCostPerMile * 100 | number:'1.1-1'" [timeLabel]="'30&nbsp;day&nbsp;avg'"
+                    style="float: right;">
+                </app-info-panel>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+
+    <div class="panel-body" *ngIf="!hasRecords">
+        <div class="form-horizontal">
+            <i>No data</i>
+        </div>
+    </div>
+    <div class="panel-body no-padding override-child-dataTable-margin" *ngIf="hasRecords">
+        <sa-datatable [options]="options" tableClass="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="col-sm-4">DateTime</th>
+                    <th class="col-sm-4">Location</th>
+                    <th class="col-sm-2">Quantity</th>
+                    <th class="col-sm-2">Amount</th>
+                </tr>
+            </thead>
+        </sa-datatable>
+    </div>
+</div>

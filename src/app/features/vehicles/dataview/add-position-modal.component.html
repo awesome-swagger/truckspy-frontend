@@ -1,0 +1,66 @@
+<ng-template #searchTemplate let-r="result" let-t="term">
+    <div style="text-align: left" *ngIf="r.isLocation">
+        <i class="fa fa-map-marker"></i>&nbsp;
+        <ngb-highlight [result]="r.entry.name" [term]="t"></ngb-highlight>
+    </div>
+    <div style="text-align: left" *ngIf="!r.isLocation">
+        <ngb-highlight [result]="r.entry.place_name" [term]="t"></ngb-highlight>
+    </div>
+</ng-template>
+
+<div class="modal-header">
+    <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Add Positions</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" #addPositionForm="ngForm" (ngSubmit)="addPositionForm.form.valid && createPositions()">
+        <div class="form-horizontal tables-flat">
+            <table class="table table-condensed">
+                <thead>
+                <tr>
+                    <th class="col-sm-6">Datetime</th>
+                    <th class="col-sm-6">Location</th>
+                    <th class="">
+                        <button class="btn btn-xs btn-success" type="button" (click)="addPosition()" *ngIf="positionsData.length < 15">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let position of positionsData; index as order">
+                    <td class="col-sm-2">
+                        <date-time-widget
+                            #datetimeInput="ngModel"
+                            name="datetime{{position.id}}" required
+                            [(ngModel)]="position.datetime"
+                            [ngClass]="{ 'has-error': addPositionForm.submitted && datetimeInput.invalid }">
+                        </date-time-widget>
+                        <div *ngIf="addPositionForm.submitted && datetimeInput.invalid" class="help-block">
+                            <div class="small" *ngIf="datetimeInput.errors">Please enter datetime
+                            </div>
+                        </div>
+                    </td>
+                    <td class="col-sm-2">
+                        <input type="text" placeholder="Search locations and places" [resultTemplate]="searchTemplate" [ngbTypeahead]="searchPlaces(searchInput, order)"
+                               (selectItem)="clickSelected($event, order)" #searchInput="ngbTypeahead" (focus)="position.focus$.next($event.target.value)"
+                               (click)="position.click$.next($event.target.value)" (focusout)="focusOut(order)" [(ngModel)]="position.theName" name="location{{position.id}}" id="location{{position.id}}" style="width: 100%"/>
+                    </td>
+                    <td class="">
+                        <button class="btn btn-xs btn-default" type="button" (click)="deletePosition(order)" *ngIf="positionsData.length > 1">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/>
+
+        <div class="text-right">
+            <button class="btn btn-primary" type="submit" [disabled]="!allSelected">Add</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,24 @@
+<a class="action-link" (click)="showIngoreErrorModal(ingoreErrorModal)">
+    Ignore error
+</a>
+
+<ng-template #ingoreErrorModal>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">Ignore Vehicle Error</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="closeIngoreErrorModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            By ignoring this error, {{miles}} missing miles will be ignored. These miles will not be shown in
+            any reports or included in any reports.
+            <br />
+            This action is not easily undone, do you want to continue?
+            <br />
+        </div>
+        <div class="text-right">
+            <button class="btn btn-danger" (click)="doIngoreError()">Ignore</button>
+        </div>
+    </div>
+</ng-template>

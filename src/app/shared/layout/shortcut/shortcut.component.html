@@ -1,0 +1,32 @@
+<div id="shortcut" [@shortcutState]="state">
+  <ul>
+    <li>
+      <a (click)="shortcutTo(['preferences'])" class="jarvismetro-tile big-cubes bg-color-pinkDark">
+        <span class="iconbox">
+          <i class="fa fa-cogs fa-4x"></i>
+          <span>Preferences</span>
+        </span>
+      </a>
+    </li>
+
+    <li>
+      <a (click)="shortcutTo(['messages'])" class="jarvismetro-tile big-cubes bg-color-blue">
+        <span class="iconbox">
+          <i class="fa fa-envelope fa-4x"></i>
+          <span>
+            Inbox
+            <!-- <span class="label pull-right bg-color-darken">7</span> -->
+          </span>
+        </span> </a>
+    </li>
+
+    <li>
+      <a (click)="showLogoutPopup()" class="jarvismetro-tile big-cubes bg-color-blueDark">
+        <span class="iconbox">
+          <i class="fa fa-sign-out fa-4x"></i>
+          <span>Logout</span>
+        </span>
+      </a>
+    </li>
+  </ul>
+</div>

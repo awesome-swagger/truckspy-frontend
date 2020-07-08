@@ -1,0 +1,502 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Vehicles', vehicle.remoteId]" icon="truck"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+
+    <div class="row" *ngIf="vehicle && vehicle.dataError">
+        <div class="col-xs-12">
+            <div class="alert alert-danger fade in">
+                This vehicle has a data error: {{vehicle.lastOperation && vehicle.lastOperation.errorMessage}}
+                &nbsp;&nbsp;&nbsp;
+                <a class="action-link" routerLink="/vehicles/{{vehicle.id}}/dataview"
+                    [queryParams]="{hopToErrors: 'true'}">
+                    See error
+                </a>
+                <ng-container *ngIf="vehicle.dataErrorIgnoreEligible">
+                    &nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;
+                    <app-ignore-error-modal [vehicle]="vehicle" (callback)="afterIgnoreError($event[0], $event[1])"></app-ignore-error-modal>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="pull-left">Vehicle Information</div>
+                    <div class="pull-right">
+                        <a class="action-link" (click)="editVehicle(editVehicleModal)" *ngIf="vehicle && vehicle.id">
+                            Edit
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5">Id</label>
+                            <label class="col-sm-7">{{vehicle.remoteId}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Created At</label>
+                            <label class="col-sm-7">
+                                {{vehicle.createdAt | timezoneHandler | date : 'yyyy-MM-dd, HH:mm:ss'}}
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Status</label>
+                            <label class="col-sm-7">
+                                {{vehicle.status}}&nbsp;
+                                <a class="action-link" (click)="toggleStatus(toggleStatusModal)" *ngIf="loaded">
+                                    {{vehicle.isActive() ? "Deactivate" : "Activate"}}
+                                </a>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Connection</label>
+                            <label class="col-sm-7">
+                                <ng-container *ngIf="!!vehicle.connectionBindList && vehicle.connectionBindList.length > 0">
+                                    <ng-container *ngFor="let connectionBind of vehicle.connectionBindList; let last = last;">
+                                        <a href="#/company/connections/{{connectionBind.connection.id}}/view" *ngIf="!!connectionBind.connection">
+                                            {{connectionBind.connection.name}}
+                                        </a>
+                                        <ng-container *ngIf="!!connectionBind.connection && !last">
+                                            {{'|'}}
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">GPS Enforcement</label>
+                            <label class="col-sm-7">{{vehicle.gpsEnforcement() | titlecase}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">AutoFix GPS Issues</label>
+                            <label class="col-sm-7">{{vehicle.autoFix}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Domicile Location</label>
+                            <label class="col-sm-7">
+                                <ng-container *ngIf="vehicle.domicileLocation && vehicle.domicileLocation.name">
+                                    {{vehicle.domicileLocation && vehicle.domicileLocation.name}}&nbsp;
+                                </ng-container>
+                                <a class="action-link" (click)="assignDomicile(assignDomicileModal)" *ngIf="locationAssignable">
+                                    Assign
+                                </a>
+                                <i *ngIf="!locationAssignable">
+                                    No valid locations
+                                </i>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Inspection Configuration</label>
+                            <label class="col-sm-7">
+                                <ng-container *ngIf="vehicle.inspectionConfig && vehicle.inspectionConfig.name">
+                                    {{vehicle.inspectionConfig && vehicle.inspectionConfig.name}}&nbsp;
+                                </ng-container>
+                                <a class="action-link" (click)="assignConfiguration(assignConfigurationModal)" *ngIf="configurationAssignable">
+                                    Assign
+                                </a>
+                                <ng-container *ngIf="vehicle.inspectionConfig && vehicle.inspectionConfig.id">
+                                    &nbsp;|&nbsp;
+                                    <app-long-action-link [actionName]="'Unassign'" [actionParams]="[vehicle.inspectionConfig]"
+                                        (actionClicked)="unassignConfiguration($event[0], $event[1])">
+                                    </app-long-action-link>
+                                </ng-container>
+                                <i *ngIf="!configurationAssignable">
+                                    No valid configurations
+                                </i>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">VIN</label>
+                            <label class="col-sm-7">{{vehicle.vin}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Year</label>
+                            <label class="col-sm-7">{{vehicle.year}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Make</label>
+                            <label class="col-sm-7">{{vehicle.make}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Model</label>
+                            <label class="col-sm-7">{{vehicle.model}}</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Dispatch Group</label>
+                            <label class="col-sm-7">
+                                <ng-container *ngIf="vehicle.dispatchGroup && vehicle.dispatchGroup.name">
+                                    {{vehicle.dispatchGroup && vehicle.dispatchGroup.name}}&nbsp;
+                                </ng-container>
+                                <a class="action-link" (click)="assignDispatchGroup(assignDispatchGroupModal)" *ngIf="dispatchGroupAssignable">
+                                    Assign
+                                </a>
+                                <ng-container *ngIf="vehicle.dispatchGroup && vehicle.dispatchGroup.id">
+                                    &nbsp;|&nbsp;
+                                    <app-long-action-link [actionName]="'Unassign'" [actionParams]="[vehicle.dispatchGroup]"
+                                        (actionClicked)="unassignDispatchGroup($event[0], $event[1])">
+                                    </app-long-action-link>
+                                </ng-container>
+                                <i *ngIf="!dispatchGroupAssignable">
+                                    No valid groups
+                                </i>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Vehicle Type</label>
+                            <label class="col-sm-7">
+                                <ng-container *ngIf="vehicle.type && vehicle.type.type">
+                                    {{vehicle.type && vehicle.type.type}}&nbsp;
+                                </ng-container>
+                                <a class="action-link" (click)="assignType(assignTypeModal)" *ngIf="typeAssignable">
+                                    Assign
+                                </a>
+                                <ng-container *ngIf="vehicle.type && vehicle.type.id">
+                                    &nbsp;|&nbsp;
+                                    <app-long-action-link [actionName]="'Unassign'" [actionParams]="[vehicle.type]"
+                                        (actionClicked)="unassignType($event[0], $event[1])">
+                                    </app-long-action-link>
+                                </ng-container>
+                                <i *ngIf="!typeAssignable">
+                                    No valid types
+                                </i>
+                            </label>
+                        </div>
+                        <ng-container *ngIf="theCompany() && theCompany().enabledFeatures && theCompany().enabledFeatures.frontline">
+                            <div class="form-group" *ngFor="let attr of vehicle.editableAttributes">
+                                <label class="col-sm-5">{{attr.name | capitalize}}</label>
+                                <label class="col-sm-7">{{attr.value}}</label>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="pull-left">Reporting Profile History</div>
+                    <div class="pull-right">
+                        <a class="action-link" (click)="reassign(reassignModal)" *ngIf="reportingProfiles && reportingProfiles.length >= 1">
+                            Reassign
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body no-padding">
+                    <div class="table-no-data" *ngIf="!vehicle.reportingProfileHistory">
+                        No data available
+                    </div>
+                    <table class="table table-striped table-bordered table-hover"
+                        *ngIf="vehicle.reportingProfileHistory">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-4">Name</th>
+                                <th class="col-sm-8">Period</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of vehicle.reportingProfileHistory">
+                                <td class="col-sm-4">{{item.reportingProfile && item.reportingProfile.name}}</td>
+                                <td class="col-sm-8">{{period(item)}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <app-reports-table #appReportsTable [entity]="vehicle"></app-reports-table>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-7">
+            <app-vehicle-position [vehicle]="vehicle"></app-vehicle-position>
+
+            <app-dwellevents [entityId]="vehicleId" [entityType]="entityType"></app-dwellevents>
+
+            <app-vehicle-fuel [vehicle]="vehicle" *ngIf="theCompany() && theCompany().enabledFeatures && theCompany().enabledFeatures.fuel"></app-vehicle-fuel>
+
+            <app-odometer [vehicle]="vehicle" (actionHappened)="refreshReports()"></app-odometer>
+        </div>
+
+    </div>
+</div>
+
+<ng-template #reassignModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeReassignModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Reassign Vehicle</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #reassignForm="ngForm"
+            (ngSubmit)="reassignForm.form.valid && doReassign()">
+            <div class="form-group">
+                <label class="col-sm-3" for="reportingProfileId">Assign To</label>
+                <div class="col-sm-9">
+                    <select style="width:100%" name="reportingProfileId" id="reportingProfileId"
+                        [(ngModel)]="reassignData.reportingProfileId">
+                        <option *ngFor="let rp of reportingProfiles" [value]="rp.id">{{rp.name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3" for="asOf">As Of</label>
+                <div class="col-sm-9">
+                    <div class="input-group" [ngClass]="{ 'has-error': reassignForm.submitted && asOfInput.invalid }">
+                        <input [(ngModel)]="reassignData.asOf" [owlDateTimeTrigger]="dt" [owlDateTime]="dt" name="asOf" required
+                            #asOfInput="ngModel" class="form-control" style="height: 24px;">
+                        <span class="input-group-addon" style="height: 24px; padding: 4.2px;"><i class="fa fa-calendar"></i></span>
+                        <owl-date-time #dt></owl-date-time>
+                    </div>
+                    <div *ngIf="reassignForm.submitted && asOfInput.invalid" class="help-block">
+                        <div class="small" *ngIf="asOfInput.errors.required">Please enter as of date
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <span class="badge bg-color-red">
+                        <i class="fa-fw fa fa-warning"></i>
+                    </span>
+                    This vehicle will be assigned to this reporting profile for all dates after the <i>As Of</i> date you provided.
+                    All existing Reporting Profile assignments after this date will be removed.
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #toggleStatusModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeToggleStatusModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">{{vehicle.isActive() ? "Deactivate" : "Activate"}}</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" (ngSubmit)="doToggleStatus()">
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <span class="badge bg-color-red">
+                        <i class="fa-fw fa fa-warning"></i>
+                    </span>
+                    Are you sure?<br/>
+                    {{
+                        vehicle.isActive() ?
+                        "Once inactive no new reports will be generated for this vehicle and you will no longer be billed for the vehicle's subscriptions." :
+                        "Once active you will be billed for this vehicle's subscriptions and we will generate applicable reports."
+                    }}
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">{{vehicle.isActive() ? "Deactivate" : "Activate"}}</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #assignDomicileModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeAssignDomicileModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Assign Domicile Location</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" (ngSubmit)="doAssignDomicile()">
+            <div class="form-group">
+                <label class="col-sm-4" for="entity">Location</label>
+                <div class="col-sm-8">
+                    <!-- Add [loading]="locationsLoading" to show loading spinner -->
+                    <ng-select class="to-default to-default-250" name="location" id="location" [items]="validLocations | async" bindLabel="name"
+                        [clearable]="false" [(ngModel)]="location" [typeahead]="locationsTypeahead$">
+                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                            <span [ngOptionHighlight]="search" title="{{item.getAddress()}}">
+                                <b>{{item.name}}</b>&nbsp;
+                                &nbsp;{{item.getAddress()}}
+                            </span>
+                        </ng-template>
+                    </ng-select>
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" [disabled]="!location" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #assignConfigurationModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeAssignConfigurationModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Assign Inspection Configuration</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" (ngSubmit)="doAssignConfiguration()">
+            <div class="form-group">
+                <label class="col-sm-3" for="entity">Configuration</label>
+                <div class="col-sm-9">
+                    <!-- Add [loading]="configurationsLoading" to show loading spinner -->
+                    <ng-select class="to-default to-default-250" name="configuration" id="configuration" [items]="validConfigurations | async" bindLabel="name"
+                        [clearable]="false" [(ngModel)]="configuration" [typeahead]="configurationsTypeahead$">
+                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                            <span [ngOptionHighlight]="search">
+                                {{item.name}}
+                            </span>
+                        </ng-template>
+                    </ng-select>
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" [disabled]="!configuration" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #editVehicleModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeEditVehicleModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Edit Vehicle</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #editVehicleForm="ngForm" (ngSubmit)="editVehicleForm.form.valid && doUpdate()">
+            <div class="form-group">
+                <label class="col-sm-4" for="vehicleId">Vehicle Id</label>
+                <div class="col-sm-8" [ngClass]="{ 'has-error': editVehicleForm.submitted && vehicleIdInput.invalid }">
+                    <input class="input input-xs form-control" name="vehicleId" [(ngModel)]="vehicleData.remoteId"
+                        #vehicleIdInput="ngModel" required [disabled]="!vehicle.canEdit">
+
+                    <div *ngIf="editVehicleForm.submitted && vehicleIdInput.invalid" class="help-block">
+                        <div class="small" *ngIf="vehicleIdInput.errors.required">Please enter vehicle ID
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="gpsEnforcement">GPS Enforcement</label>
+                <div class="col-sm-8">
+                    <select style="width:100%" name="gpsEnforcement" id="gpsEnforcement"
+                        [(ngModel)]="vehicleData.gpsDataQualityEnforcement">
+                        <option *ngFor="let next of gpsEnforcementValues" [value]="next.value">{{next.key | titlecase}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="autoFix">AutoFix GPS Issues</label>
+                <div class="col-sm-8">
+                    <select style="width:100%" name="autoFix" id="autoFix" [(ngModel)]="vehicleData.autoFix">
+                        <option [ngValue]="true">true</option>
+                        <option [ngValue]="false">false</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4" for="vin">VIN</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="vin" [(ngModel)]="vehicleData.vin">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="year">Year</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="year" type="number" [(ngModel)]="vehicleData.year">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="make">Make</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="make" [(ngModel)]="vehicleData.make">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4" for="model">Model</label>
+                <div class="col-sm-8">
+                    <input class="input input-xs form-control" name="model" [(ngModel)]="vehicleData.model">
+                </div>
+            </div>
+            <ng-container *ngIf="theCompany() && theCompany().enabledFeatures && theCompany().enabledFeatures.frontline">
+                <div class="form-group" *ngFor="let attr of vehicleData.attributes; let i = index">
+                    <label class="col-sm-4">{{attr.name | capitalize}}</label>
+                    <div class="col-sm-8">
+                        <input class="input input-xs form-control" name="{{attr.name}}" [(ngModel)]="vehicleData.attributes[i].value">
+                    </div>
+                </div>
+            </ng-container>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #assignDispatchGroupModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeAssignDispatchGroupModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Assign To Dispatch Group</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #assignDispatchGroupForm="ngForm" (ngSubmit)="assignDispatchGroupForm.form.valid && doAssignDispatchGroup()">
+            <div class="form-group">
+                <label class="col-sm-3" for="dispatchGroupId">Group</label>
+                <div class="col-sm-9">
+                    <select style="width:100%" name="dispatchGroupId" id="dispatchGroupId"
+                        [(ngModel)]="assignDispatchGroupData.dispatchGroupId">
+                        <option *ngFor="let dg of dispatchGroups" [value]="dg.id">{{dg.name}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Assign</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #assignTypeModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeAssignTypeModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Assign To Vehicle Type</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" #assignTypeForm="ngForm" (ngSubmit)="assignTypeForm.form.valid && doAssignType()">
+            <div class="form-group">
+                <label class="col-sm-3" for="typeId">Type</label>
+                <div class="col-sm-9">
+                    <select style="width:100%" name="typeId" id="typeId"
+                        [(ngModel)]="assignTypeData.typeId">
+                        <option *ngFor="let t of types" [value]="t.id">{{t.type}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Assign</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

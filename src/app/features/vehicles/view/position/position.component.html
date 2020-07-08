@@ -1,0 +1,20 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-left">Vehicle Position</div>
+        <div class="pull-right">
+            <a routerLink="/vehicles/{{vehicleId}}/dataview">
+                <i class="fa fa-map-marker"></i> Data View
+            </a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body" *ngIf="!vehicle || !vehicle.hasLastPosition()">
+        <div class="form-horizontal">
+            <i>No Data</i>
+        </div>
+    </div>
+
+    <div class="panel-body no-padding" *ngIf="vehicle && vehicle.hasLastPosition()">
+        <app-vehicle-map [vehicle]="vehicle"></app-vehicle-map>
+    </div>
+</div>

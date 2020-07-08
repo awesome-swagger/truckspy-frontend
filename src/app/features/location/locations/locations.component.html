@@ -1,0 +1,232 @@
+<div id="content">
+  <div class="row">
+    <sa-big-breadcrumbs [items]="['Location Groups', 'Locations']" icon="map-marker" class="col-xs-8">
+    </sa-big-breadcrumbs>
+
+    <div class="col-xs-4" style="padding-top: 18px" *ngIf="groups.length > 0">
+      <select class="pull-right" style="width:50%" name="group" id="group" [(ngModel)]="groupId"
+        (ngModelChange)="onGroupChange($event)">
+        <optgroup label="Locals" *ngIf="localGroups.length > 0">
+          <option *ngFor="let g of localGroups" [value]="g.id">{{g.name}}</option>
+        </optgroup>
+        <optgroup label="Globals" *ngIf="globalGroups.length > 0">
+          <option *ngFor="let g of globalGroups" [value]="g.id">{{g.name}}</option>
+        </optgroup>
+      </select>
+
+      <label style="padding-top: 2px" class="pull-right" for="group">Location Group:&nbsp;&nbsp;</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="alert alert-info fade in">
+        Only locations with specified positions are displayed here.
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-default">
+        <div class="panel-body no-padding mapbox-control-fix">
+          <mgl-map [style]="style" [fitBoundsOptions]="fitBoundsOptions" (load)="onLoad($event)"
+            [fitBounds]="fitBounds">
+            <mgl-control [position]="'top-left'">
+              <div class="mapbox-locations-panel" *ngIf="locations && locations.length > 0">
+                <h6>Locations</h6>
+                <ng-container *ngFor="let l of locations">
+                  <div class="mapbox-location-link-container">
+                    <a (click)="showLocation(l)">{{l.name}}</a>
+                  </div>
+                </ng-container>
+                <ngb-pagination [boundaryLinks]="true" [collectionSize]="locationsCount || 0" [(page)]="page"
+                  [pageSize]="perPage" [maxSize]="2" [rotate]="true" [ellipses]="true" (pageChange)="changePage($event)"
+                  aria-label="Default pagination" size="sm" *ngIf="locationsCount > 0">
+                  <ng-template ngbPaginationFirst>
+                    &lt;&lt;
+                  </ng-template>
+                  <ng-template ngbPaginationPrevious>
+                    &lt;
+                  </ng-template>
+                  <ng-template ngbPaginationNext>
+                    &gt;
+                  </ng-template>
+                  <ng-template ngbPaginationLast>
+                    &gt;&gt;
+                  </ng-template>
+                </ngb-pagination>
+              </div>
+
+              <ng-template #searchTemplate let-r="result" let-t="term">
+                <div style="text-align: left" *ngIf="r.isLocation">
+                  <i class="fa fa-map-marker"></i>&nbsp;
+                  <ngb-highlight [result]="r.entry.name" [term]="t"></ngb-highlight>
+                </div>
+                <div style="text-align: left" *ngIf="!r.isLocation">
+                  <ngb-highlight [result]="r.entry.place_name" [term]="t"></ngb-highlight>
+                </div>
+              </ng-template>
+
+              <input type="text" placeholder="Search locations and places" [resultTemplate]="searchTemplate"
+                [ngbTypeahead]="searchPlaces" (selectItem)="clickSelected($event)" #searchInput="ngbTypeahead"
+                (focus)="focus$.next($event.target.value)" (click)="click$.next($event.target.value)"
+                [(ngModel)]="model" class="mapbox-typeahead" />
+            </mgl-control>
+
+            <mgl-control>
+              <button class="btn btn-xs btn-default" (click)="toggleStyle()">
+                <i class="fa" [ngClass]="{ 'fa-camera': isDefault, 'fa-road': !isDefault }"></i>
+                {{isDefault ? "Satellite" : "Streets"}}
+              </button>
+            </mgl-control>
+
+            <mgl-geojson-source id="locations-source-polygon">
+              <ng-container *ngFor="let l of locations">
+                <mgl-feature *ngIf="l.isPolygon()" [properties]="l.prepareProperties()" [geometry]="l.prepareGeometry()"></mgl-feature>
+              </ng-container>
+            </mgl-geojson-source>
+
+            <mgl-geojson-source id="locations-source-point">
+              <ng-container *ngFor="let l of locations">
+                <mgl-feature *ngIf="l.isPoint()" [properties]="l.prepareProperties()" [geometry]="l.preparePointGeometry()"></mgl-feature>
+              </ng-container>
+            </mgl-geojson-source>
+
+            <mgl-layer id="locations-layer-polygon" type="fill" source="locations-source-polygon" [paint]="{
+              'fill-color': 'rgba(200, 100, 240, 0.4)',
+              'fill-outline-color': 'rgba(200, 100, 240, 1)'
+            }" (mouseEnter)="cursorStyle = 'pointer'" (mouseLeave)="cursorStyle = ''" (click)="onClick($event)">
+            </mgl-layer>
+
+            <mgl-image id="pin-image" url="https://api.tiles.mapbox.com/v3/marker/pin-s+FE2020.png" (loaded)="imageLoaded = true">
+            </mgl-image>
+
+            <mgl-layer *ngIf="imageLoaded" id="locations-layer-point" type="symbol" source="locations-source-point" [layout]="{
+              'icon-image': 'pin-image',
+              'icon-size': 2,
+              'icon-allow-overlap': true
+            }" (mouseEnter)="cursorStyle = 'pointer'" (mouseLeave)="cursorStyle = ''" (click)="onClick($event)">
+            </mgl-layer>
+
+            <!-- Searched not displayed logic, we don't want to concat `locations` and `searchedNotPresented` -->
+            <mgl-geojson-source id="searchedNotPresented-source-polygon">
+              <ng-container *ngFor="let l of searchedNotPresented">
+                <mgl-feature *ngIf="l.isPolygon()" [properties]="l.prepareProperties()" [geometry]="l.prepareGeometry()"></mgl-feature>
+              </ng-container>
+            </mgl-geojson-source>
+
+            <mgl-geojson-source id="searchedNotPresented-source-point">
+              <ng-container *ngFor="let l of searchedNotPresented">
+                <mgl-feature *ngIf="l.isPoint()" [properties]="l.prepareProperties()" [geometry]="l.preparePointGeometry()"></mgl-feature>
+              </ng-container>
+            </mgl-geojson-source>
+
+            <mgl-layer id="searchedNotPresented-layer-polygon" type="fill" source="searchedNotPresented-source-polygon" [paint]="{
+              'fill-color': 'rgba(200, 100, 240, 0.4)',
+              'fill-outline-color': 'rgba(200, 100, 240, 1)'
+            }" (mouseEnter)="cursorStyle = 'pointer'" (mouseLeave)="cursorStyle = ''" (click)="onClick($event)">
+            </mgl-layer>
+
+            <mgl-layer *ngIf="imageLoaded" id="searchedNotPresented-layer-point" type="symbol" source="searchedNotPresented-source-point" [layout]="{
+              'icon-image': 'pin-image',
+              'icon-size': 2,
+              'icon-allow-overlap': true
+            }" (mouseEnter)="cursorStyle = 'pointer'" (mouseLeave)="cursorStyle = ''" (click)="onClick($event)">
+            </mgl-layer>
+
+            <mgl-popup *ngIf="selectedLngLat && !deleted" [lngLat]="selectedLngLat" #thePopup>
+              <form style="min-width: 200px;" class="form-horizontal mapbox-popup-form-fix" #editForm="ngForm"
+                (ngSubmit)="editForm.form.valid && doEditLocation()">
+                <div class="form-group">
+                  <label class="col-sm-4" for="name">Name:</label>
+                  <b class="col-sm-8" *ngIf="!edit">{{selectedElement.name}}</b>
+
+                  <div class="col-sm-8" *ngIf="edit"
+                    [ngClass]="{ 'has-error': editForm.submitted && nameInput.invalid }">
+                    <input class="input input-xs form-control" name="name" [(ngModel)]="locationData.name"
+                      #nameInput="ngModel" required>
+                    <div *ngIf="editForm.submitted && nameInput.invalid" class="help-block">
+                      <div class="small" *ngIf="nameInput.errors.required">Please enter name
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-4" for="address1">Address&nbsp;1:</label>
+                  <b class="col-sm-8" *ngIf="!edit">{{selectedElement.address1 || "-"}}</b>
+                  <div class="col-sm-8" *ngIf="edit">
+                    <input class="input input-xs form-control" name="address1" [(ngModel)]="locationData.address1">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4" for="address2">Address&nbsp;2:</label>
+                  <b class="col-sm-8" *ngIf="!edit">{{selectedElement.address2 || "-"}}</b>
+                  <div class="col-sm-8" *ngIf="edit">
+                    <input class="input input-xs form-control" name="address2" [(ngModel)]="locationData.address2">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4" for="city">City:</label>
+                  <b class="col-sm-8" *ngIf="!edit">{{selectedElement.city || "-"}}</b>
+                  <div class="col-sm-8" *ngIf="edit">
+                    <input class="input input-xs form-control" name="city" [(ngModel)]="locationData.city">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4" for="state">State:</label>
+                  <b class="col-sm-8" *ngIf="!edit">{{selectedElement.state || "-"}}</b>
+                  <div class="col-sm-8" *ngIf="edit">
+                    <select style="height: 24px; margin-top: -2px; margin-bottom: 2px; width: 100%" name="state"
+                      id="state" [(ngModel)]="locationData.state">
+                      <option value="">-- None --</option>
+                      <option *ngFor="let s of states" [value]="s.key">{{s.value}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4" for="zip">Zip:</label>
+                  <b class="col-sm-8" *ngIf="!edit">{{selectedElement.zip || "-"}}</b>
+                  <div class="col-sm-8" *ngIf="edit">
+                    <input class="input input-xs form-control" name="zip" [(ngModel)]="locationData.zip">
+                  </div>
+                </div>
+
+                <div *ngIf="!activeGroup.isGlobal()">
+                  <br />
+                  <a class="action-link" *ngIf="!edit" (click)="initEditLocation(selectedElement)">Edit</a>
+                  <button class="btn btn-xs btn-default" *ngIf="edit" type="button" (click)="cancelEditLocation()">
+                    Cancel
+                  </button>
+                  &nbsp;
+                  <button class="btn btn-xs btn-primary" *ngIf="edit" type="submit">
+                    Save
+                  </button>
+
+                  <button class="btn btn-xs btn-danger pull-right" (click)="initDeleteLocation()" type="button"
+                    *ngIf="!deleteInitiated">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                  <button class="btn btn-xs btn-warning pull-right" (click)="deleteLocation(selectedElement.id)" type="button"
+                    *ngIf="deleteInitiated">
+                    Confirm
+                  </button>
+
+                  <button class="btn btn-xs pull-right mapbox-gl-draw_polygon" style="height: 21.78px; width: 24px; margin-right: 5px;"
+                    [class.btn-danger]="!currentLocation.isPolygon()" (click)="initCreatePolygon()" type="button"
+                    [title]="currentLocation.isPolygon() ? 'Update location polygon' : 'Create location polygon'">
+                  </button>
+                  <button class="btn btn-xs pull-right" style="margin-right: 5px;" [class.btn-danger]="!currentLocation.isPoint()"
+                    (click)="initCreatePoint()" type="button" [title]="currentLocation.isPoint() ? 'Update pin' : 'Create pin'">
+                    <i class="fa fa-map-marker"></i>
+                  </button>
+                </div>
+              </form>
+            </mgl-popup>
+          </mgl-map>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,544 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Reporting Profiles', reporting.name]" icon="files-o"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-5">
+            <form class="panel panel-default" #reportingForm="ngForm" (ngSubmit)="reportingForm.form.valid && save()">
+                <div class="panel-heading">
+                    <div class="pull-left">Reporting Profile Information</div>
+                    <div class="pull-right">
+                        <a class="action-link" *ngIf="!edit" (click)="beginEdit()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="edit">
+                            <button class="btn btn-xs btn-default" type="button"
+                                (click)="!reportingForm.resetForm() && cancelEdit()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5">Name</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{reporting.name}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': reportingForm.submitted && nameInput.invalid }">
+                                <input class="input input-xs form-control" name="name" [(ngModel)]="reportingData.name"
+                                    #nameInput="ngModel" required>
+
+                                <div *ngIf="reportingForm.submitted && nameInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="nameInput.errors.required">Please enter name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Entity Name</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{reporting.entityName}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': reportingForm.submitted && entityNameInput.invalid }">
+                                <input class="input input-xs form-control" name="entityName"
+                                    [(ngModel)]="reportingData.entityName" #entityNameInput="ngModel" required>
+
+                                <div *ngIf="reportingForm.submitted && entityNameInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="entityNameInput.errors.required">Please enter entity name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Entity Identifier</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{reporting.entityIdentifier}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': reportingForm.submitted && entityIdentifierInput.invalid }">
+                                <input class="input input-xs form-control" name="entityIdentifier"
+                                    [(ngModel)]="reportingData.entityIdentifier" #entityIdentifierInput="ngModel"
+                                    required>
+
+                                <div *ngIf="reportingForm.submitted && entityIdentifierInput.invalid"
+                                    class="help-block">
+                                    <div class="small" *ngIf="entityIdentifierInput.errors.required">Please enter entity
+                                        identifier
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Report End Day</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{reporting.reportPeriodEnd}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit">
+                                <select style="width:100%" name="periodEnd" id="periodEnd"
+                                    [(ngModel)]="reportingData.reportPeriodEnd">
+                                    <option *ngFor="let end of periodEnds" [value]="end">{{end}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Report Timezone</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{reporting.reportTimeZone}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit">
+                                <select style="width:100%" name="timeZone" id="timeZone"
+                                    [(ngModel)]="reportingData.reportTimeZone">
+                                    <option *ngFor="let z of timeZones" [value]="z">{{z}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Report Units</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{reporting.units}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit">
+                                <select style="width:100%" name="units" id="units" [(ngModel)]="reportingData.units">
+                                    <option *ngFor="let u of validUnits" [value]="u">{{u}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="pull-left">Location Groups</div>
+                    <div class="pull-right">
+                        <a class="action-link" (click)="assignGroup(assignGroupModal)">Assign</a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body" *ngIf="!reporting || !reporting.locationGroups || reporting.locationGroups.length === 0">
+                    <div class="form-horizontal">
+                        <i>No assigned location groups</i>
+                    </div>
+                </div>
+
+                <div class="panel-body no-padding" *ngIf="reporting && reporting.locationGroups && reporting.locationGroups.length > 0">
+                    <div class="form-horizontal tables-flat">
+                        <table class="table table-condensed fixed-layout">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-10">Name</th>
+                                    <th class="col-sm-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let g of reporting.locationGroups">
+                                    <td class="col-sm-10 fixed-layout-cell" title="{{g.name}}">{{g.name}}</td>
+                                    <td class="col-sm-2" style="text-align: center">
+                                        <app-long-action-link [actionName]="'unassign'" [actionParams]="[g]" (actionClicked)="unassignGroup($event[0], $event[1])">
+                                        </app-long-action-link>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <form class="panel panel-default" #mileageForm="ngForm" (ngSubmit)="mileageForm.form.valid && saveMileage()">
+                <div class="panel-heading">
+                    <div class="pull-left">Mileage Compliance Settings</div>
+                    <div class="pull-right" *ngIf="mileageSubscription">
+                        <a class="action-link" *ngIf="!editMileage" (click)="beginEditMileage()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="editMileage">
+                            <button class="btn btn-xs btn-default" type="button"
+                                (click)="!mileageForm.resetForm() && cancelEditMileage()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-horizontal" *ngIf="!mileageSubscription">
+                        <i>No data</i>
+                    </div>
+
+                    <div class="form-horizontal" *ngIf="mileageSubscription">
+                        <div class="form-group">
+                            <label class="col-sm-5">IVMR Layout</label>
+                            <label class="col-sm-7" *ngIf="!editMileage">
+                                {{mileageSubscription.settings && mileageSubscription.settings.IVMRVehiclePDFLayout | replaceUnderscore}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMileage">
+                                <select style="width:100%" name="IVMRVehiclePDFLayout" id="IVMRVehiclePDFLayout"
+                                    [(ngModel)]="mileageData.IVMRVehiclePDFLayout">
+                                    <option *ngFor="let next of validIVMRVehiclePDFLayouts" [value]="next">{{next | replaceUnderscore}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">New Page After Odo Adjustment</label>
+                            <label class="col-sm-7" *ngIf="!editMileage">
+                                {{mileageSubscription.settings && mileageSubscription.settings.newPageAfterOdometerAdjustment}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMileage">
+                                <select style="width:100%" name="newPageAfterOdometerAdjustment" id="newPageAfterOdometerAdjustment"
+                                    [(ngModel)]="mileageData.newPageAfterOdometerAdjustment">
+                                    <option [ngValue]="true">true</option>
+                                    <option [ngValue]="false">false</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Show Odo Adjustments</label>
+                            <label class="col-sm-7" *ngIf="!editMileage">
+                                {{mileageSubscription.settings && mileageSubscription.settings.showOdometerAdjustments}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMileage">
+                                <select style="width:100%" name="showOdometerAdjustments" id="showOdometerAdjustments"
+                                    [(ngModel)]="mileageData.showOdometerAdjustments">
+                                    <option [ngValue]="true">true</option>
+                                    <option [ngValue]="false">false</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">New Page for Month End</label>
+                            <label class="col-sm-7" *ngIf="!editMileage">
+                                {{mileageSubscription.settings && mileageSubscription.settings.newPageForMonthEnd}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMileage">
+                                <select style="width:100%" name="newPageForMonthEnd" id="newPageForMonthEnd"
+                                    [(ngModel)]="mileageData.newPageForMonthEnd">
+                                    <option [ngValue]="true">true</option>
+                                    <option [ngValue]="false">false</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Group Reports By Domicile</label>
+                            <label class="col-sm-7" *ngIf="!editMileage">
+                                {{mileageSubscription.settings && mileageSubscription.settings.groupReportsByDomicile}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMileage">
+                                <select style="width:100%" name="groupReportsByDomicile" id="groupReportsByDomicile"
+                                    [(ngModel)]="mileageData.groupReportsByDomicile">
+                                    <option [ngValue]="true">true</option>
+                                    <option [ngValue]="false">false</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <form class="panel panel-default" #minimumWageForm="ngForm" (ngSubmit)="minimumWageForm.form.valid && saveMinimumWage()">
+                <div class="panel-heading">
+                    <div class="pull-left">Minimum Wage Compliance Settings</div>
+                    <div class="pull-right" *ngIf="minimumWageSubscription">
+                        <a class="action-link" *ngIf="!editMinimumWage" (click)="beginEditMinimumWage()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="editMinimumWage">
+                            <button class="btn btn-xs btn-default" type="button"
+                                (click)="!minimumWageForm.resetForm() && cancelEditMinimumWage()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal" *ngIf="!minimumWageSubscription">
+                        <i>No data</i>
+                    </div>
+                    <div class="form-horizontal" *ngIf="minimumWageSubscription">
+                        <div class="form-group">
+                            <label class="col-sm-5">Minimum Wage</label>
+                            <label class="col-sm-7" *ngIf="!editMinimumWage">
+                                {{minimumWageSubscription.settings && minimumWageSubscription.settings.minimumWage | currency}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMinimumWage"
+                                [ngClass]="{ 'has-error': minimumWageForm.submitted && minimumWageInput.invalid }">
+                                <input class="input input-xs form-control" name="minimumWage" [(ngModel)]="minimumWageData.minimumWage"
+                                    #minimumWageInput="ngModel" required type="number">
+
+                                <div *ngIf="minimumWageForm.submitted && minimumWageInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="minimumWageInput.errors.required">Please enter minimum wage</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Overtime Hours Over</label>
+                            <label class="col-sm-7" *ngIf="!editMinimumWage">
+                                {{minimumWageSubscription.settings && minimumWageSubscription.settings.overTimeHoursOver}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMinimumWage"
+                                [ngClass]="{ 'has-error': minimumWageForm.submitted && overTimeHoursOverInput.invalid }">
+                                <input class="input input-xs form-control" name="overTimeHoursOver" [(ngModel)]="minimumWageData.overTimeHoursOver"
+                                    #overTimeHoursOverInput="ngModel" required type="number">
+
+                                <div *ngIf="minimumWageForm.submitted && overTimeHoursOverInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="overTimeHoursOverInput.errors.required">Please enter overtime hours over</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Overtime Rate x</label>
+                            <label class="col-sm-7" *ngIf="!editMinimumWage">
+                                {{minimumWageSubscription.settings && minimumWageSubscription.settings.overTimeRateMultiplier}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMinimumWage"
+                                [ngClass]="{ 'has-error': minimumWageForm.submitted && overTimeRateMultiplierInput.invalid }">
+                                <input class="input input-xs form-control" name="overTimeRateMultiplier" [(ngModel)]="minimumWageData.overTimeRateMultiplier"
+                                    #overTimeRateMultiplierInput="ngModel" required type="number">
+
+                                    <div *ngIf="minimumWageForm.submitted && overTimeRateMultiplierInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="overTimeRateMultiplierInput.errors.required">Please enter overtime rate x</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Timesheet Excel Layout</label>
+                            <label class="col-sm-7" *ngIf="!editMinimumWage">
+                                {{minimumWageSubscription.settings && minimumWageSubscription.settings.timeSheetExcelLayout | replaceUnderscore}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMinimumWage">
+                                <select style="width:100%" name="timeSheetExcelLayout" id="timeSheetExcelLayout"
+                                    [(ngModel)]="minimumWageData.timeSheetExcelLayout">
+                                    <option *ngFor="let next of validTimeSheetExcelLayouts" [value]="next">{{next | replaceUnderscore}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Timesheet PDF Layout</label>
+                            <label class="col-sm-7" *ngIf="!editMinimumWage">
+                                {{minimumWageSubscription.settings && minimumWageSubscription.settings.timeSheetPDFLayout | replaceUnderscore}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMinimumWage">
+                                <select style="width:100%" name="timeSheetPDFLayout" id="timeSheetPDFLayout"
+                                    [(ngModel)]="minimumWageData.timeSheetPDFLayout">
+                                    <option *ngFor="let next of validTimeSheetPDFLayouts" [value]="next">{{next | replaceUnderscore}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Profile Excel Layout</label>
+                            <label class="col-sm-7" *ngIf="!editMinimumWage">
+                                {{minimumWageSubscription.settings && minimumWageSubscription.settings.profileExcelLayout | replaceUnderscore}}
+                            </label>
+
+                            <div class="col-sm-7" *ngIf="editMinimumWage">
+                                <select style="width:100%" name="profileExcelLayout" id="profileExcelLayout"
+                                    [(ngModel)]="minimumWageData.profileExcelLayout">
+                                    <option *ngFor="let next of validProfileExcelLayouts" [value]="next">{{next | replaceUnderscore}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Profile PDF Layout</label>
+                            <label class="col-sm-7" *ngIf="!editMinimumWage">
+                                {{minimumWageSubscription.settings && minimumWageSubscription.settings.profilePDFLayout | replaceUnderscore}}
+                            </label>
+                        
+                            <div class="col-sm-7" *ngIf="editMinimumWage">
+                                <select style="width:100%" name="profilePDFLayout" id="profilePDFLayout"
+                                    [(ngModel)]="minimumWageData.profilePDFLayout">
+                                    <option *ngFor="let next of validProfilePDFLayouts" [value]="next">{{next | replaceUnderscore}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-7">
+            <div class="panel panel-default">
+                <div class="panel-heading">Subscriptions</div>
+                <div class="panel-body" *ngIf="!activeSubscriptions || activeSubscriptions.length === 0">
+                    <div class="form-horizontal">
+                        <i>No current subscriptions</i>
+                    </div>
+                </div>
+                <div class="panel-body no-padding" *ngIf="activeSubscriptions && activeSubscriptions.length > 0">
+                    <div class="form-horizontal tables-flat">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-4"></th>
+                                    <th class="col-sm-2">Amount</th>
+                                    <th class="col-sm-2">Quantity</th>
+                                    <th class="col-sm-2">Total</th>
+                                    <th class="col-sm-2"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table class="table table-condensed fixed-layout">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-4">Current Subscriptions</th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let s of activeSubscriptions">
+                                    <td class="col-sm-4 fixed-layout-cell" title="{{s.productType | replaceUnderscore}}">{{s.productType | replaceUnderscore}}</td>
+                                    <td class="col-sm-2">{{s.lastQuantity && s.lastQuantity.amount | amountHandler | currency | naHandler}}</td>
+                                    <td class="col-sm-2">{{s.lastQuantity && s.lastQuantity.quantity | naHandler}}</td>
+                                    <td style="width: 20.83333333%">{{s.lastQuantity && s.lastQuantity.totalAmount() | amountHandler | currency | naHandler}}</td>
+                                    <td style="width: 12.50000001%; text-align: center">
+                                        <a (click)="initUnsubscribeModal(s)">remove</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th class="col-sm-4">Total</th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2">{{reporting.totalAmount() | amountHandler | currency}}</th>
+                                    <th class="col-sm-2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <hr *ngIf="actualProducts && actualProducts.length > 0">
+                <div class="panel-body no-padding" *ngIf="actualProducts && actualProducts.length > 0">
+                    <div class="form-horizontal tables-flat">
+                        <table class="table table-condensed fixed-layout">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-4">Add Subscription</th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2"></th>
+                                    <th class="col-sm-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let p of actualProducts">
+                                    <td class="col-sm-4 fixed-layout-cell" title="{{p.type | replaceUnderscore}}">{{p.type | replaceUnderscore}}</td>
+                                    <td class="col-sm-2">{{p.estimatedAmount | amountHandler | currency | naHandler}}</td>
+                                    <td class="col-sm-2">{{p.estimatedQuantity}}</td>
+                                    <td style="width: 20.83333333%">
+                                        {{p.estimatedTotalAmount() | amountHandler | currency | naHandler}}
+                                    </td>
+                                    <td style="width: 12.50000001%; text-align: center">
+                                        <a (click)="initSubscribeModal(p)">add</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel-footer" *ngIf="activeSubscriptions && activeSubscriptions.length > 0">
+                    <span class="pull-right">
+                        Amounts and Quantities are as of {{
+                            reporting.getEstimationDate() | timezoneHandler
+                            | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler
+                        }}
+                    </span>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <app-reports-table #appReportsTable [entity]="reporting"></app-reports-table>
+        </div>
+
+    </div>
+</div>
+
+<div bsModal #unsubscribeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeUnsubscribeModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Remove Subscription</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    Are you sure you want to remove subscription <b>{{forSubscription.productType | replaceUnderscore}}</b>?
+                    <br /><br />
+                    <span class="badge bg-color-red">
+                        <i class="fa-fw fa fa-warning"></i>
+                    </span>
+                    This action cannot be undone.
+                </div>
+                <div class="text-right">
+                    <button class="btn btn-primary" (click)="unsubscribe(forSubscription.id)">Unsubscribe</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #subscribeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeSubscribeModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Add Subscription</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    Please confirm subscription to product <b>{{forProduct.type | replaceUnderscore}}</b>?
+                    <br />
+                </div>
+                <div class="text-right">
+                    <button class="btn btn-primary" (click)="subscribe(forProduct.type)">Subscribe</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #assignGroupModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeAssignGroupModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Assign Location Group</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" (ngSubmit)="doAssignGroup()">
+            <div class="form-group">
+                <label class="col-sm-5" for="group">Location Group</label>
+                <div class="col-sm-7">
+                    <ng-select class="to-default to-default-250" name="group" id="group" [items]="groups" bindLabel="name"
+                        [clearable]="false" [(ngModel)]="groupData.group">
+                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                            <span [ngOptionHighlight]="search">{{item.name}}</span>
+                        </ng-template>
+                    </ng-select>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Assign</button>
+            </div>
+        </form>
+    </div>
+</ng-template>

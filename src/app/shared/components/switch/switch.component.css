@@ -1,0 +1,31 @@
+.switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 40px;
+  height: 16px;
+  background-color: #dddddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.switch.checked {
+  background-color: #77c1bb;
+}
+
+.switch:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  background-color: #c1c1c1;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.switch.checked:after {
+  left: 24px;
+  background-color: #079588;
+}

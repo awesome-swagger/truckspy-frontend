@@ -1,0 +1,39 @@
+<div id="content">
+  <div class="row">
+    <sa-big-breadcrumbs [items]="['Locations']" icon="map-marker" class="col-xs-8">
+    </sa-big-breadcrumbs>
+  </div>
+
+  <div class="row">
+      <div class="col-xs-12">
+          <div class="alert alert-info fade in">
+              In order to be listed here a location must be assigned to a Location Group which is assigned to a Reporting Profile.
+              &nbsp;&nbsp;&nbsp;
+              <a class="action-link" routerLink="/reporting">
+                  Click here to see Reporting Profiles
+              </a>
+          </div>
+      </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-default">
+        <div class="panel-body no-padding override-child-dataTable-margin">
+          <sa-datatable *ngIf="options" [options]="options" tableClass="table table-striped table-bordered table-hover" #locationsTable>
+            <thead>
+              <tr>
+                <th class="col-sm-2">Name</th>
+                <th class="col-sm-3">Address</th>
+                <th class="col-sm-2">City</th>
+                <th class="col-sm-1">State</th>
+                <th class="col-sm-2">Zip</th>
+                <th class="col-sm-2">Group</th>
+              </tr>
+            </thead>
+          </sa-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

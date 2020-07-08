@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Dwell Time</div>
+    <div class="panel-body no-padding">
+        <div class="form-group form-inline">
+            <label style="margin-left: 10px; margin-right: 10px;">Period:</label>
+            <input class="form-control" [(ngModel)]="period" [owlDateTimeTrigger]="dt" [owlDateTime]="dt"
+                [selectMode]="'range'" (dateTimeChange)="onPeriodChange($event)" style="width: 200px;">
+            <owl-date-time [pickerType]="'calendar'" #dt></owl-date-time>
+        </div>
+        <div [chart]="stock"></div>
+    </div>
+</div>

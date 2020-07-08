@@ -1,0 +1,43 @@
+<div id="content" class="sa-outlook-content" style="padding-top: 0px;">
+    <div id="inbox-content" class="inbox-body no-content-padding">
+        <div class="inbox-side-bar">
+            <h1 class="page-title txt-color-blueDark hidden-tablet">
+                <i class="fa fa-fw" [class.fa-inbox]="childPath == 'inbox'"
+                    [class.fa-paper-plane-o]="childPath == 'sent'"
+                    [class.fa-pencil-square-o]="childPath == 'draft'"
+                    [class.fa-trash-o]="childPath == 'archived'"
+                    [class.fa-envelope-o]="childPath == 'compose' || childPath == 'details'"></i>
+                {{childPath | titlecase}}
+            </h1>
+
+            <a class="btn btn-primary btn-block" (click)="compose()">
+                <strong>Compose</strong>
+            </a>
+
+            <h6> Folder
+                <a tooltip="Refresh" placement="right" class="pull-right txt-color-darken" (click)="refreshFolder()">
+                    <i class="fa fa-refresh"></i>
+                </a>
+            </h6>
+
+            <ul class="inbox-menu-lg">
+                <li [class.active]="childPath == 'inbox'">
+                    <a [routerLink]="['inbox']">Inbox</a>
+                </li>
+                <li [class.active]="childPath == 'sent'">
+                    <a [routerLink]="['sent']">Sent</a>
+                </li>
+                <li [class.active]="childPath == 'draft'">
+                    <a [routerLink]="['draft']">Draft</a>
+                </li>
+                <li [class.active]="childPath == 'archived'">
+                    <a [routerLink]="['archived']">Archived</a>
+                </li>
+            </ul>
+
+        </div>
+
+        <router-outlet #o="outlet"></router-outlet>
+    </div>
+
+</div>

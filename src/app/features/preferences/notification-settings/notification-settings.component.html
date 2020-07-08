@@ -1,0 +1,156 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-left">Notification Settings</div>
+        <div class="pull-right">
+            <a class="action-link" (click)="addSettings(addSettingsModal)">Add</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body" *ngIf="!hierarchy || hierarchy.length === 0">
+        <div class="form-horizontal">
+            <i>No settings</i>
+        </div>
+    </div>
+    <div class="panel-body no-padding" *ngIf="hierarchy && hierarchy.length > 0">
+        <div class="form-horizontal tables-flat">
+            <table class="table table-condensed" *ngFor="let nextType of hierarchy">
+                <thead>
+                    <tr>
+                        <th class="col-xs-12">{{nextType.notificationType | replaceUnderscore}}</th>
+                    </tr>
+                </thead>
+                <table class="table table-condensed table-hover" *ngFor="let nextMap of nextType.typeMap"
+                    style="margin-bottom: 0px;">
+                    <thead>
+                        <tr>
+                            <td class="col-xs-10">
+                                <div style="width: 87.49999999%; margin-left: 15px">
+                                    <i *ngIf="!calculateURI(nextMap)">{{nextMap.entityName}}</i>
+                                    <a *ngIf="calculateURI(nextMap)"
+                                        href="{{calculateURI(nextMap)}}"><i>{{nextMap.entityName}}</i></a>
+                                </div>
+                            </td>
+                            <td class="col-xs-2">
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let s of nextMap.settings">
+                            <td class="col-xs-10">
+                                <div style="margin-left: 30px">
+                                    {{s.communicationType | replaceUnderscore}}
+                                    <ng-container *ngIf="s.attributes && s.attributes.length > 0">
+                                        &nbsp;<i class="fa fa-long-arrow-right"></i>&nbsp;
+                                        <span *ngFor="let attr of s.attributes; last as isLast">
+                                            {{attr.value}}{{isLast ? "" : ", "}}
+                                        </span>
+                                    </ng-container>
+                                </div>
+                            </td>
+                            <td style="text-align: center" class="col-xs-2">
+                                <a class="pull-right" (click)="initRemoveSettingsModal(s)">remove</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ng-template #addSettingsModal>
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeAddSettingsModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Add Notification Settings</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" (ngSubmit)="createSettings()">
+            <div class="form-group">
+                <label class="col-sm-5" for="notificationType">Type</label>
+                <div class="col-sm-7">
+                    <select style="width:100%" name="notificationType" id="notificationType"
+                        [(ngModel)]="settingsData.notificationType" (change)="onTypeChange($event.target.value)">
+                        <option *ngFor="let n of notificationTypes" [value]="n">{{n | replaceUnderscore}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5" for="entity">Entity</label>
+                <div class="col-sm-7">
+                    <ng-select class="to-default to-default-250" name="entity" id="entity" [items]="entities" bindLabel="name"
+                        [clearable]="false" [(ngModel)]="settingsData.entity" (ngModelChange)="onEntityChange($event)">
+                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                            <b>{{item.normalizeEntityType()}}</b>&nbsp;
+                            &nbsp;<span [ngOptionHighlight]="search">{{item.name}}</span>
+                        </ng-template>
+                    </ng-select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-5" for="communicationType">Communication</label>
+                <div class="col-sm-7">
+                    <select style="width:100%" name="communicationType" id="communicationType"
+                        [(ngModel)]="settingsData.communicationType">
+                        <option *ngFor="let c of communicationTypes" [value]="c">{{c | replaceUnderscore}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- TODO: Do more generic after introducing another supported attributes -->
+            <div class="form-group" *ngIf="isReportReady()">
+                <label class="col-sm-5" for="reportName">ReportName</label>
+                <div class="col-sm-7">
+                    <select style="width:100%" name="reportName" id="reportName" [(ngModel)]="settingsData.reportName"
+                        (change)="onReportNameChange($event.target.value)">
+                        <option *ngFor="let r of reportNames" [value]="r">{{r | replaceUnderscore}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" *ngIf="isReportReady()">
+                <label class="col-sm-5" for="fileType">FileType</label>
+                <div class="col-sm-7">
+                    <select style="width:100%" name="fileType" id="fileType" [(ngModel)]="settingsData.fileType">
+                        <option *ngFor="let f of fileTypes" [value]="f">{{f | replaceUnderscore}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<div bsModal #removeSettingsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closeRemoveSettingsModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Remove Notification Settings</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    Are you sure you want to remove notification settings?<br /><br />
+                    Type: <b>{{forSettings && forSettings.notificationType | replaceUnderscore}}</b><br />
+                    Entity: <i>{{forSettings && forSettings.getEntityName()}}</i><br />
+                    Details: {{forSettings && forSettings.communicationType | replaceUnderscore}}
+                    <ng-container *ngIf="forSettings && forSettings.attributes && forSettings.attributes.length > 0">
+                        &nbsp;<i class="fa fa-long-arrow-right"></i>&nbsp;
+                        <span *ngFor="let attr of forSettings.attributes; last as isLast">
+                            {{attr.value}}{{isLast ? "" : ", "}}
+                        </span>
+                    </ng-container>
+                    <br /><br />
+                </div>
+                <div class="text-right">
+                    <button class="btn btn-primary" (click)="removeSettings(forSettings.id)">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

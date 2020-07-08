@@ -1,0 +1,96 @@
+<div id="content">
+    <div class="row">
+        <sa-big-breadcrumbs [items]="['Locations', location.name]" icon="map-marker"
+            class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+        </sa-big-breadcrumbs>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-5">
+            <form class="panel panel-default" #locationForm="ngForm" (ngSubmit)="locationForm.form.valid && save()">
+                <div class="panel-heading">
+                    <div class="pull-left">Location Information</div>
+                    <div class="pull-right">
+                        <a class="action-link" *ngIf="!edit && location.allowEdit" (click)="beginEdit()">Edit</a>
+                        <div class="action-buttons-group" *ngIf="edit">
+                            <button class="btn btn-xs btn-default" type="button"
+                                (click)="!locationForm.resetForm() && cancelEdit()">Cancel</button>
+                            <button class="btn btn-xs btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5">Name</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{location.name}}</label>
+
+                            <div class="col-sm-7" *ngIf="edit"
+                                [ngClass]="{ 'has-error': locationForm.submitted && nameInput.invalid }">
+                                <input class="input input-xs form-control" name="name" [(ngModel)]="locationData.name"
+                                    #nameInput="ngModel" required>
+
+                                <div *ngIf="locationForm.submitted && nameInput.invalid" class="help-block">
+                                    <div class="small" *ngIf="nameInput.errors.required">Please enter name
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Address&nbsp;1</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{location.address1}}</label>
+                            <div class="col-sm-7" *ngIf="edit">
+                                <input class="input input-xs form-control" name="address1" [(ngModel)]="locationData.address1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">Address&nbsp;2</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{location.address2}}</label>
+                            <div class="col-sm-7" *ngIf="edit">
+                                <input class="input input-xs form-control" name="address2" [(ngModel)]="locationData.address2">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5">City</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{location.city}}</label>
+                            <div class="col-sm-7" *ngIf="edit">
+                                <input class="input input-xs form-control" name="city" [(ngModel)]="locationData.city">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5" for="state">State:</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{location.state}}</label>
+                            <div class="col-sm-7" *ngIf="edit">
+                                <select style="height: 24px; margin-top: -2px; margin-bottom: 2px; width: 100%" name="state" id="state"
+                                    [(ngModel)]="locationData.state">
+                                    <option value="">-- None --</option>
+                                    <option *ngFor="let s of states" [value]="s.key">{{s.value}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5">Zip</label>
+                            <label class="col-sm-7" *ngIf="!edit">{{location.zip}}</label>
+                            <div class="col-sm-7" *ngIf="edit">
+                                <input class="input input-xs form-control" name="zip" [(ngModel)]="locationData.zip">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <app-location-position [location]="location"></app-location-position>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-7">
+            <app-dwellstats></app-dwellstats>
+
+            <app-dwellevents [entityId]="locationId"></app-dwellevents>
+        </div>
+
+    </div>
+</div>

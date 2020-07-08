@@ -1,0 +1,86 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Subscriptions</div>
+    <div class="panel-body" *ngIf="!subscriptionProfiles || subscriptionProfiles.length === 0">
+        <div class="form-horizontal">
+            <i>No data</i>
+        </div>
+    </div>
+    <div class="panel-body no-padding" *ngIf="subscriptionProfiles && subscriptionProfiles.length > 0">
+        <div class="form-horizontal tables-flat">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th class="col-sm-5"></th>
+                        <th class="col-sm-2">Amount</th>
+                        <th class="col-sm-2">Quantity</th>
+                        <th class="col-sm-3">Total</th>
+                    </tr>
+                </thead>
+            </table>
+            <table class="table table-condensed" *ngFor="let reporting of subscriptionProfiles">
+                <thead>
+                    <tr>
+                        <th class="col-sm-5">{{reporting.name}}</th>
+                        <th class="col-sm-2"></th>
+                        <th class="col-sm-2"></th>
+                        <th class="col-sm-3"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let s of reporting.activeSubscriptions()">
+                        <td class="col-sm-5">{{s.productType | replaceUnderscore}}</td>
+                        <td class="col-sm-2">{{s.lastQuantity && s.lastQuantity.amount | amountHandler | currency | naHandler}}</td>
+                        <td class="col-sm-2">{{s.lastQuantity && s.lastQuantity.quantity | naHandler}}</td>
+                        <td class="col-sm-3">{{s.lastQuantity && s.lastQuantity.totalAmount() | amountHandler | currency | naHandler}}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th class="col-sm-5">Sub Total</th>
+                        <th class="col-sm-2"></th>
+                        <th class="col-sm-2"></th>
+                        <th class="col-sm-3">{{reporting.totalAmount() | amountHandler | currency}}</th>
+                    </tr>
+                </tfoot>
+            </table>
+            <table class="table table-condensed">
+                <tfoot>
+                    <tr>
+                        <th class="col-sm-5">Total</th>
+                        <th class="col-sm-2"></th>
+                        <th class="col-sm-2"></th>
+                        <th class="col-sm-3">{{company.totalAmount() | amountHandler | currency}}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer" *ngIf="subscriptionProfiles && subscriptionProfiles.length > 0">
+        <span class="pull-right">
+            Amounts and Quantities are as of {{
+                subscriptionProfiles[0].getEstimationDate() | timezoneHandler
+                | date : 'yyyy-MM-dd, HH:mm:ss' | naHandler
+            }}
+        </span>
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Invoices</div>
+    <div class="panel-body no-padding override-child-dataTable-margin">
+        <sa-datatable [options]="optionsInvoices"
+            tableClass="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="col-sm-3">Date</th>
+                    <th class="col-sm-1">Paid</th>
+                    <th class="col-sm-2">Amount</th>
+                    <th class="col-sm-2">DiscountAmount</th>
+                    <th class="col-sm-1">ChargeFailedAttempts</th>
+                    <th class="col-sm-3">Action</th>
+                </tr>
+            </thead>
+        </sa-datatable>
+    </div>
+</div>
