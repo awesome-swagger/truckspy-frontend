@@ -634,3 +634,6 @@ kbd {
     padding: 5px;
     border-top: 1px solid;
 }
+.search-div .tab-content .dropdown-menu {
+    width: 200px;
+}

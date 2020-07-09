@@ -2828,6 +2828,20 @@ export class RestService {
       );
   }
 
+  public getSearchResult(query: string): Observable<SearchResult[]> {
+    if (!query) {
+      return of([]);
+    }
+
+    return this.http.get<SearchResult[]>(API_URL + `api/web/search/${query}`, authOptionsTokenized)
+      .pipe(
+        map(response => {
+          return plainToClass(SearchResult, response);
+        }),
+        catchError((response: HttpErrorResponse) => this.handleError(response))
+      );
+  }
+
   private handleLoginError(error: HttpErrorResponse) {
     let message: string = error.status === 401
       ? "Incorrect user or password, please try again."
@@ -2880,7 +2894,6 @@ export class GlobalFunctionsService {
     let decoded = decodeURIComponent(escape(atob(paramStr)));
     return JSON.parse(decoded);
   }
-
 }
 
 @Injectable()

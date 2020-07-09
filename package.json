@@ -80,6 +80,7 @@
     "ngx-mask": "^8.0.0",
     "ngx-text-highlight": "^0.1.6",
     "nouislider": "10.1.0",
+    "popper.js": "^1.16.1",
     "raphael": "2.2.7",
     "rxjs": "^6.0.0",
     "scriptjs": "2.5.9",

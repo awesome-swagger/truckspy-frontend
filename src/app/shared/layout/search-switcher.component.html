@@ -17,22 +17,52 @@
       <div *ngFor="let tab of tabs; let i=index" class="tab-pane fade in" [class.active]="(selectedTab === i)">
         <form>
           <section>
-            <ng-multiselect-dropdown
+            <!-- <ng-multiselect-dropdown
               [data]="dropdownList"
               [(ngModel)]="selectedItems[i]"
               [ngModelOptions]="{standalone: true}"
               [settings]="dropdownSettings"
               (ngModelChange)="onItemSelect($event, i)"
             >
-            </ng-multiselect-dropdown>
-
+            </ng-multiselect-dropdown> -->
+            <div class="dropdown">
+              <div style="display: flex;">
+                <input
+                  type="text" class="form-control" placeholder="search..."
+                  [(ngModel)]="searchTexts[i]" (keyup.enter)="onSearch(i)"
+                  [ngModelOptions]="{standalone: true}"
+                /> 
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-filter" aria-hidden="true"></i>
+                </button>              
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu">
+                  <form class="px-4 py-3">                  
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="dropdownCheck">
+                      <label class="form-check-label" for="dropdownCheck">
+                        Remember me
+                      </label>
+                    </div>
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <form class="px-4 py-3">                  
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="dropdownCheck1">
+                      <label class="form-check-label" for="dropdownCheck1">
+                        Remember me
+                      </label>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </section>
 
-          <section>
+          <section *ngIf="searchPageNums[i]">
             <div class="list-group">
-              <a href="#" class="list-group-item">
-                <h5 class="list-group-item-heading">First</h5>
-                <p class="list-group-item-text" style="font-size: 10px;">List Group Item Text</p>
+              <a class="list-group-item" *ngFor="let item of getItems(i)">
+                <h5 class="list-group-item-heading">{{item.search}}</h5>
+                <p class="list-group-item-text" style="font-size: 10px;">{{item.entityType}} - {{item.status}}</p>
               </a>
             </div>
 
@@ -44,8 +74,9 @@
                     <span class="sr-only">Previous</span>
                   </a>
                 </li>
-                <li class="page-item"><a class="page-link" (click)="onPageDisplay(i, 0)">1</a></li>
-                <li class="page-item"><a class="page-link" (click)="onPageDisplay(i, 1)">2</a></li>
+                <li class="page-item" *ngFor="let page of counter(i); let n=index" >
+                  <a class="page-link" (click)="onPageDisplay(i, n)">{{ n+1 }}</a>
+                </li>
                 <li class="page-item">
                   <a class="page-link" aria-label="Next" (click)="onPageNext(i)">
                     <span aria-hidden="true">&raquo;</span>

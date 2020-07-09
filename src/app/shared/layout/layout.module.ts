@@ -19,6 +19,9 @@ import { RouteBreadcrumbsComponent } from './ribbon/route-breadcrumbs.component'
 import {UtilsModule} from "../utils/utils.module";
 import { PipesModule } from "../pipes/pipes.module";
 
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdown} from '@ng-bootstrap/ng-bootstrap';
+
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
@@ -34,8 +37,9 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
     TooltipModule,
     BsDropdownModule,
-    
-    NgMultiSelectDropDownModule.forRoot()
+
+    NgMultiSelectDropDownModule.forRoot(),
+    NgbModule
   ],
   declarations: [
     FooterComponent,
