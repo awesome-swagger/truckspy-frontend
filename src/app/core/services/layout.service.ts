@@ -1,4 +1,4 @@
-import {Component, OnInit, Injectable} from '@angular/core';
+import {Component, OnInit, Injectable, EventEmitter} from '@angular/core';
 import {config} from '@app/core/smartadmin.config';
 import {NotificationService} from "./notification.service";
 import { Subject, fromEvent } from 'rxjs';
@@ -32,7 +32,11 @@ const store = {
 
 @Injectable()
 export class LayoutService {
+  layoutUpdated:EventEmitter<boolean> = new EventEmitter();
+  searchUpdated:EventEmitter<boolean> = new EventEmitter();
+
   isActivated:boolean;
+  isSearchActivated:boolean;
   smartSkin:string;
 
   store:any;
@@ -64,6 +68,14 @@ export class LayoutService {
     .subscribe()
   }
 
+  onLayoutActivate(active) {
+    this.isActivated = active;
+    this.layoutUpdated.emit(active);
+  }
+  onSearchActivate(active) {
+    this.isSearchActivated = active;
+    this.searchUpdated.emit(active);
+  }
 
   onSmartSkin(skin) {
     this.store.skin = skin;

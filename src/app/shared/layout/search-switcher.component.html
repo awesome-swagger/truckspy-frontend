@@ -1,0 +1,79 @@
+<div class="search-div" [class.activate]="isActivated">
+  <span id="searching" (click)="onToggle()">
+    <i class="fa fa-clock-o txt-color-blueDark"></i>
+  </span>
+
+  <div class="search-tab">
+    <ul class="nav nav-tabs">
+
+      <li *ngFor="let tab of tabs; let i=index" [class.active]="(selectedTab === i)">
+        <a data-toggle="tab" (click)="onTabSelect(i)">{{ tab }}</a>
+      </li>
+
+      <li> <a data-toggle="tab" (click)="onAddTab()"> + </a> </li>
+    </ul>
+
+    <div class="tab-content">
+      <div *ngFor="let tab of tabs; let i=index" class="tab-pane fade in" [class.active]="(selectedTab === i)">
+        <form>
+          <section>
+            <label>
+              <input name="searchText{{i}}"
+                [(ngModel)]="searchTexts[i]" 
+                (ngModelChange)="onSearchTextChange($event, i)"
+              />
+            </label>
+          </section>
+
+          <section>
+            <div class="list-group">
+              <a href="#" class="list-group-item">
+                <h5 class="list-group-item-heading">First</h5>
+                <p class="list-group-item-text" style="font-size: 10px;">List Group Item Text</p>
+              </a>
+              <a href="#" class="list-group-item">
+                <h5 class="list-group-item-heading">Second</h5>
+                <p class="list-group-item-text">List Group Item Text</p>
+              </a>
+              <a href="#" class="list-group-item">
+                <h5 class="list-group-item-heading">Third</h5>
+                <p class="list-group-item-text">List Group Item Text</p>
+              </a>
+              <a href="#" class="list-group-item">
+                <h5 class="list-group-item-heading">Third</h5>
+                <p class="list-group-item-text">List Group Item Text</p>
+              </a>
+              <a href="#" class="list-group-item">
+                <h5 class="list-group-item-heading">Third</h5>
+                <p class="list-group-item-text">List Group Item Text</p>
+              </a>
+            </div>
+
+            <nav aria-label="Page navigation">
+              <ul class="pagination" style="margin: 0">
+                <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </section>
+        </form>
+      </div>
+      <!-- <div id="search2" class="tab-pane fade">
+       
+      </div> -->
+    </div>
+  </div>
+</div>

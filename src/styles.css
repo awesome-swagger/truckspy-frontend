@@ -584,3 +584,53 @@ kbd {
     margin-top: 0px;
     margin-left: -5px;
 }
+
+.search-div.activate {
+    right: 0!important;
+    box-shadow: -11px 12px 23px rgba(0,0,0,.2);
+    padding: 5px 10px 10px;
+}
+.search-div {
+    position: absolute;
+    top: 35px;
+    right: 0;
+    width: 200px;
+    z-index: 902;
+    background: #F1DA91;
+}
+.search-div #searching + .search-tab {
+    display: none;
+}
+.search-div.activate #searching + .search-tab {
+    display: block;
+    height: 50vh;
+    border: 1px solid;
+    border-top: none;
+}
+.search-div>span {
+    position: absolute;
+    right: 0;
+    top: 0px;
+    display: block;
+    height: 30px;
+    width: 30px;
+    border-radius: 5px 0 0 5px;
+    background: #F1DA91;
+    padding: 2px;
+    text-align: center;
+    line-height: 28px;
+    cursor: pointer;
+}
+.search-div>span i {
+    font-size: 17px;
+}
+.search-div.activate>span {
+    left: -30px;
+}
+.search-div.activate>span i:before {
+    content: "\f00d";
+}
+.search-div .tab-content {
+    padding: 5px;
+    border-top: 1px solid;
+}

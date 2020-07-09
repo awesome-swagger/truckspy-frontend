@@ -21,7 +21,12 @@ export class LayoutSwitcherComponent implements OnInit, OnDestroy {
     this.sub = this.layoutService.subscribe((store)=>{
       this.store = store;
     });
+    
     this.store = this.layoutService.store;
+
+    this.layoutService.layoutUpdated.subscribe(active =>{
+      this.isActivated = active;
+    });
   }
 
   ngOnDestroy(){
@@ -29,8 +34,10 @@ export class LayoutSwitcherComponent implements OnInit, OnDestroy {
   }
 
 
-  onToggle() {
-    this.isActivated = !this.isActivated
+  onToggle() {    
+    this.isActivated = !this.isActivated;
+    this.layoutService.onLayoutActivate(this.isActivated);
+    this.layoutService.onSearchActivate(false);
   }
 
 
