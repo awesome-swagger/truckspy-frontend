@@ -1,6 +1,6 @@
 {
   "/base_api/*": {
-    "target": "https://app.truckspy.io/",
+    "target": "https://api.truckspy.io/",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
