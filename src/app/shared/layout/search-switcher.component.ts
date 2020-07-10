@@ -21,7 +21,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
 
   searchTexts: Array<string> = [];
   searchResults: Array<SearchResult[]> = [];
-  currentPageNums: Array<number> = [0];
+  currentPageNums: Array<number> = [1];
   searchPageNums: Array<number> = [0];
 
   dropdownList = [];
@@ -81,7 +81,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     .subscribe(
       data => {
         this.searchResults[index] = data;
-        this.currentPageNums[index] = 0;
+        this.currentPageNums[index] = 1;
         this.searchPageNums[index] = Math.ceil(data.length/5);
       }
     );
@@ -98,34 +98,16 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
 
   counter(index) {
     let counter = this.searchPageNums[index];
-    if (counter > 5) counter = 5;
+    // if (counter > 5) counter = 5;
     return new Array(counter);
   }
 
-  onPagePrevious(index) {
-    if( this.currentPageNums[index] === 0)
-      this.currentPageNums[index] = 0;
-    else
-      this.currentPageNums[index] = this.currentPageNums[index] - 1;
-
-    console.log(this.currentPageNums[index]);
-  }
-
-  onPageNext(index) {
-    if( this.currentPageNums[index] === this.searchResults[index].length)
-      this.currentPageNums[index] = this.searchResults[index].length;
-    else
-      this.currentPageNums[index] = (this.currentPageNums[index] + 1);
-
-      console.log(this.currentPageNums[index]);
-  }
-
-  onPageDisplay(index, num){
-    this.currentPageNums[index] = num;
+  onChangePage(e, index){
+    this.currentPageNums[index] = e;
   }
 
   getItems(index) {
-    let start = this.currentPageNums[index]*5;
+    let start = (this.currentPageNums[index]-1)*5;
     return this.searchResults[index].slice(start, start+5);
   }
 }

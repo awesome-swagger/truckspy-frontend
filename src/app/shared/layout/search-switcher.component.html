@@ -67,55 +67,31 @@
           </section>
 
           <section *ngIf="searchPageNums[i]">
-            <div class="list-group">
-              <a class="list-group-item" *ngFor="let item of getItems(i)">
-                <h5 class="list-group-item-heading">{{item.search}}</h5>
-                <p class="list-group-item-text" style="font-size: 10px;">{{item.entityType}} - {{item.status}}</p>
-              </a>
+            <ng-container>
+              <div class="list-group">
+                <a class="list-group-item" *ngFor="let item of getItems(i)">
+                  <h5 class="list-group-item-heading">{{item.search}}</h5>
+                  <p class="list-group-item-text" style="font-size: 10px;">{{item.entityType}} - {{item.status}}</p>
+                </a>
+              </div>
+            </ng-container>
+            <div style="position: absolute; bottom: 10px; right: 15px">
+              <ngb-pagination 
+                  [boundaryLinks]="false" 
+                  [collectionSize]="searchResults[i].length" 
+                  [(page)]="currentPageNums[i]"
+                  [pageSize]="5" [maxSize]="2" [rotate]="true" [ellipses]="true" size="sm"
+                  (pageChange)="onChangePage($event, i)" 
+                  aria-label="Default pagination"
+                  class="pagination-no-margin"
+              >
+                  <ng-template ngbPaginationPrevious> << </ng-template>
+                  <ng-template ngbPaginationNext>     >> </ng-template>
+              </ngb-pagination>
             </div>
-
-            <nav aria-label="Page navigation" style="position: absolute; bottom: 10px; right: 15px">
-              <ul class="pagination" style="margin: 0">
-                <li class="page-item">
-                  <a class="page-link" aria-label="Previous" (click)="onPagePrevious(i)">
-                    <span aria-hidden="true">&laquo;</span>
-                    <span class="sr-only">Previous</span>
-                  </a>
-                </li>
-                <li class="page-item" *ngFor="let page of counter(i); let n=index" >
-                  <a class="page-link" (click)="onPageDisplay(i, n)">{{ n+1 }}</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" aria-label="Next" (click)="onPageNext(i)">
-                    <span aria-hidden="true">&raquo;</span>
-                    <span class="sr-only">Next</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
           </section>
         </form>
       </div>
     </div>
-    <!-- <nav class="tabbable">
-      <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">My Profile</a>
-        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
-        <a class="nav-item nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
-        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
-        <a class="nav-item nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
-        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
-        <a class="nav-item nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
-      </div>
-    </nav>
-    <div class="tab-content pt-2" id="nav-tabContent">
-      <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">Home</div>
-      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">Profile</div>
-      <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">Contact</div>
-    </div> -->
   </div>
 </div>
