@@ -2842,6 +2842,16 @@ export class RestService {
       );
   }
 
+  public getEventsType(query: string): Observable<string[]> {
+    return this.http.get<string[]>(API_URL + `api/web/${query}/types`, authOptionsTokenized)
+      .pipe(
+        map(response => {
+          return response;
+        }),
+        catchError((response: HttpErrorResponse) => this.handleError(response))
+      );
+  }
+
   private handleLoginError(error: HttpErrorResponse) {
     let message: string = error.status === 401
       ? "Incorrect user or password, please try again."

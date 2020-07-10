@@ -4,27 +4,18 @@
   </span>
 
   <div class="search-tab">
-    <ul class="nav nav-tabs">
-
+    <ul class="nav nav-tabs" style="height: 4.5rem; overflow-x:auto; overflow-y:hidden; display: flex;">
       <li *ngFor="let tab of tabs; let i=index" [class.active]="(selectedTab === i)">
         <a data-toggle="tab" (click)="onTabSelect(i)">{{ tab }}</a>
       </li>
 
-      <li> <a data-toggle="tab" (click)="onAddTab()"> + </a> </li>
+      <li> <a (click)="onAddTab()"> + </a> </li>
     </ul>
 
     <div class="tab-content">
       <div *ngFor="let tab of tabs; let i=index" class="tab-pane fade in" [class.active]="(selectedTab === i)">
         <form>
           <section>
-            <!-- <ng-multiselect-dropdown
-              [data]="dropdownList"
-              [(ngModel)]="selectedItems[i]"
-              [ngModelOptions]="{standalone: true}"
-              [settings]="dropdownSettings"
-              (ngModelChange)="onItemSelect($event, i)"
-            >
-            </ng-multiselect-dropdown> -->
             <div class="dropdown">
               <div style="display: flex;">
                 <input
@@ -32,24 +23,41 @@
                   [(ngModel)]="searchTexts[i]" (keyup.enter)="onSearch(i)"
                   [ngModelOptions]="{standalone: true}"
                 /> 
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary dropdown-toggle" type="button" 
+                  id="dropdownMenu" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false"
+                >
                   <i class="fa fa-filter" aria-hidden="true"></i>
                 </button>              
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu">
+                <div class="dropdown-menu dropdown-menu-right dropdown-pad" aria-labelledby="dropdownMenu">
                   <form class="px-4 py-3">                  
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="dropdownCheck">
-                      <label class="form-check-label" for="dropdownCheck">
-                        Remember me
+                    <div class="form-check" *ngFor="let type of vehicleEventsTypes">
+                      <input type="checkbox" class="form-check-input"
+                        id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                      />
+                      <label class="form-check-label check-label" for="{{type}}_{{i}}">
+                        {{type}}
                       </label>
                     </div>
                   </form>
                   <div class="dropdown-divider"></div>
                   <form class="px-4 py-3">                  
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="dropdownCheck1">
-                      <label class="form-check-label" for="dropdownCheck1">
-                        Remember me
+                    <div class="form-check" *ngFor="let type of driverEventsTypes">
+                      <input type="checkbox" class="form-check-input"
+                        id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                      />
+                      <label class="form-check-label check-label" for="{{type}}_{{i}}">
+                        {{type}}
+                      </label>
+                    </div>
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <form class="px-4 py-3">                  
+                    <div class="form-check" *ngFor="let type of deviceEventsTypes">
+                      <input type="checkbox" class="form-check-input"
+                        id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                      />
+                      <label class="form-check-label check-label" for="{{type}}_{{i}}">
+                        {{type}}
                       </label>
                     </div>
                   </form>
@@ -89,5 +97,25 @@
         </form>
       </div>
     </div>
+    <!-- <nav class="tabbable">
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">My Profile</a>
+        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
+        <a class="nav-item nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
+        <a class="nav-item nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
+        <a class="nav-item nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+      </div>
+    </nav>
+    <div class="tab-content pt-2" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">Home</div>
+      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">Profile</div>
+      <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">Contact</div>
+    </div> -->
   </div>
 </div>

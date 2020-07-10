@@ -636,4 +636,20 @@ kbd {
 }
 .search-div .tab-content .dropdown-menu {
     width: 200px;
+    animation: none;
+}
+.search-div .nav-tabs::-webkit-scrollbar {
+    height: 10px;
+}
+.dropdown-divider {
+    border-bottom: 1px solid gray;
+    margin-bottom: 0.5rem;
+}
+.search-div .dropdown-pad {
+    padding: 5px; 
+    overflow-y: auto;
+}
+.search-div .check-label {
+    padding-left: 1rem;
+    margin-top: 1rem;
 }

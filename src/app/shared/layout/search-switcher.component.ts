@@ -14,6 +14,11 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   isActivated:boolean;
   selectedTab:number = 0;
   tabs: Array<string> = ['tab1'];
+  vehicleEventsTypes: Array<string> = [];
+  driverEventsTypes: Array<string> = [];
+  deviceEventsTypes: Array<string> = [];
+  selectedEventsTypes: Array<Array<string>> =[[]];
+
   searchTexts: Array<string> = [];
   searchResults: Array<SearchResult[]> = [];
   currentPageNums: Array<number> = [0];
@@ -36,14 +41,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
       this.isActivated = active;
     });
     
-    this.dropdownList = [
-      { item_id: 1, item_text: 'Login' },
-      { item_id: 2, item_text: 'Logout' },
-      { item_id: 3, item_text: 'Trip Started' },
-      { item_id: 4, item_text: 'Trip Completed' },
-      { item_id: 5, item_text: 'Another Type' }
-    ];
-
+    this.getEventTypes();
   }
 
   ngOnDestroy(){
@@ -64,10 +62,18 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     let newTab = this.tabs.length;
     this.tabs.push(`tab${newTab+1}`);
     this.selectedTab = newTab;
+    this.selectedEventsTypes[newTab] = [];
   }
 
-  getVehicleEventType() {
-    this.restService.get
+  getEventTypes() {
+    this.restService.getEventsType("vehicleevents")
+    .subscribe(data=>this.vehicleEventsTypes = data);
+
+    this.restService.getEventsType("driverevents")
+    .subscribe(data=>this.driverEventsTypes = data);
+
+    this.restService.getEventsType("deviceevents")
+    .subscribe(data=>this.deviceEventsTypes = data);
   }
 
   onSearch( index ) {
@@ -81,8 +87,13 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     );
   }
 
-  onItemSelect(e, index) {
-    console.log(e, index);
+  onTypeChecked(e, type, tabIndex) {
+    let index = this.selectedEventsTypes[tabIndex].indexOf(type);
+
+    if(!e.target.checked && index > -1) this.selectedEventsTypes[tabIndex].splice(index, 1);
+    else if(e.target.checked && index === -1) this.selectedEventsTypes[tabIndex].push(type)
+    
+    console.log(this.selectedEventsTypes[tabIndex]);
   }
 
   counter(index) {
