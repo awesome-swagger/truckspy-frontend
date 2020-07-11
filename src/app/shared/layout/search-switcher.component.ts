@@ -109,6 +109,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   }
 
   onItemClicked(item, index) {
+    this.tabs[index] = item.search;
     this.restService.doViewItem(item, this.selectedEventsTypes[index]);
   }
 }
