@@ -24,9 +24,6 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   currentPageNums: Array<number> = [1];
   searchPageNums: Array<number> = [0];
 
-  dropdownList = [];
-  selectedItems = [];
-
   constructor(
     public layoutService:LayoutService,
     private restService: RestService) { }
@@ -80,7 +77,9 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     this.restService.getSearchResult(this.searchTexts[index])
     .subscribe(
       data => {
-        this.searchResults[index] = data;
+        this.searchResults[index] = data.filter(result=>
+          ['Vehicle', 'Driver', 'Device'].includes(result.entityType)
+        );
         this.currentPageNums[index] = 1;
         this.searchPageNums[index] = Math.ceil(data.length/5);
       }
@@ -91,9 +90,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     let index = this.selectedEventsTypes[tabIndex].indexOf(type);
 
     if(!e.target.checked && index > -1) this.selectedEventsTypes[tabIndex].splice(index, 1);
-    else if(e.target.checked && index === -1) this.selectedEventsTypes[tabIndex].push(type)
-    
-    console.log(this.selectedEventsTypes[tabIndex]);
+    else if(e.target.checked && index === -1) this.selectedEventsTypes[tabIndex].push(type);
   }
 
   counter(index) {
@@ -109,5 +106,9 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   getItems(index) {
     let start = (this.currentPageNums[index]-1)*5;
     return this.searchResults[index].slice(start, start+5);
+  }
+
+  onItemClicked(item, index) {
+    this.restService.doViewItem(item, this.selectedEventsTypes[index]);
   }
 }

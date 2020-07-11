@@ -69,7 +69,7 @@
           <section *ngIf="searchPageNums[i]">
             <ng-container>
               <div class="list-group">
-                <a class="list-group-item" *ngFor="let item of getItems(i)">
+                <a class="list-group-item" *ngFor="let item of getItems(i)" (click)="onItemClicked(item, i)">
                   <h5 class="list-group-item-heading">{{item.search}}</h5>
                   <p class="list-group-item-text" style="font-size: 10px;">{{item.entityType}} - {{item.status}}</p>
                 </a>

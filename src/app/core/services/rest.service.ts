@@ -2852,6 +2852,37 @@ export class RestService {
       );
   }
 
+  public doViewItem(item: SearchResult, filters: string[]) {
+    let queryURL = API_URL + "api/web/"
+    switch (item.entityType){
+      case "Vehicle":
+        queryURL += 'vehicles/'; break;
+      case "Driver":
+        queryURL += 'drivers/'; break;
+      case "Device":
+        queryURL += 'devices/'; break;
+      default:
+        return;
+    }
+    
+    queryURL += item.entityId + '/events?page=1&limit=100&sort=datetime.DESC';
+
+    if(filters.length)
+      for(let filter of filters)  queryURL += "&events[]=" + filter;
+
+    // let result = this.http
+    //   .get<any>(queryURL, getHttpInterceptedOptions)
+    //   .pipe(
+    //     map(response => {
+    //       console.log(response);
+    //     }),
+    //     catchError((response: HttpErrorResponse) => this.handleError(response))
+    //   )
+    let result = this.http
+      .get(queryURL, getHttpInterceptedOptions).subscribe((response: any) => console.log(response))
+    console.log(result, "result");
+  }
+
   private handleLoginError(error: HttpErrorResponse) {
     let message: string = error.status === 401
       ? "Incorrect user or password, please try again."
