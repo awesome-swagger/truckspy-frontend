@@ -78,6 +78,7 @@
     "ngx-bootstrap": "3.1.2",
     "ngx-mapbox-gl": "^3.1.0",
     "ngx-mask": "^8.0.0",
+    "ngx-scrollbar": "^4.2.0",
     "ngx-text-highlight": "^0.1.6",
     "nouislider": "10.1.0",
     "popper.js": "^1.16.1",

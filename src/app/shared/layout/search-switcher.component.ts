@@ -1,8 +1,9 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild, AfterViewInit} from '@angular/core';
 import {config} from '@app/core/smartadmin.config';
 import {LayoutService} from '@app/core/services/layout.service';
 import { RestService, SearchResult } from '@app/core/services';
 import { Subscription } from 'rxjs';
+import { NgScrollbar } from 'ngx-scrollbar';
 
 declare var $: any;
 
@@ -13,7 +14,7 @@ declare var $: any;
 export class SearchSwitcherComponent implements OnInit, OnDestroy {
   isActivated:boolean;
   selectedTab:number = 0;
-  tabs: Array<string> = ['tab1'];
+  tabs: Array<string> = ['Tab1'];
   vehicleEventsTypes: Array<string> = [];
   driverEventsTypes: Array<string> = [];
   deviceEventsTypes: Array<string> = [];
@@ -22,7 +23,9 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   searchTexts: Array<string> = [];
   searchResults: Array<SearchResult[]> = [];
   currentPageNums: Array<number> = [1];
-  searchPageNums: Array<number> = [0];
+  searchPageNums: Array<number> = [0]; 
+  
+  @ViewChild(NgScrollbar) scrollbarRef: NgScrollbar;
 
   constructor(
     public layoutService:LayoutService,
@@ -45,6 +48,10 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     // this.sub.unsubscribe()
   }
 
+  ngAfterViewInit(){
+    
+  }
+
   onToggle() {
     this.isActivated = !this.isActivated;
     this.layoutService.onSearchActivate(this.isActivated);
@@ -57,7 +64,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
 
   onAddTab() {
     let newTab = this.tabs.length;
-    this.tabs.push(`tab${newTab+1}`);
+    this.tabs.push(`Tab${newTab+1}`);
     this.selectedTab = newTab;
     this.selectedEventsTypes[newTab] = [];
   }
@@ -91,6 +98,10 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
 
     if(!e.target.checked && index > -1) this.selectedEventsTypes[tabIndex].splice(index, 1);
     else if(e.target.checked && index === -1) this.selectedEventsTypes[tabIndex].push(type);
+  }
+
+  isChecked(type, tabIndex){
+    return this.selectedEventsTypes[tabIndex].indexOf(type) > -1;
   }
 
   counter(index) {

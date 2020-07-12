@@ -20,9 +20,8 @@ import {UtilsModule} from "../utils/utils.module";
 import { PipesModule } from "../pipes/pipes.module";
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgbDropdown} from '@ng-bootstrap/ng-bootstrap';
-
-import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+// import { NgbDropdown} from '@ng-bootstrap/ng-bootstrap';
+import { NgScrollbarModule } from 'ngx-scrollbar';
 
 @NgModule({
   imports: [
@@ -38,8 +37,8 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     TooltipModule,
     BsDropdownModule,
 
-    NgMultiSelectDropDownModule.forRoot(),
-    NgbModule
+    NgbModule,
+    NgScrollbarModule
   ],
   declarations: [
     FooterComponent,
@@ -59,7 +58,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     RibbonComponent,
     ShortcutComponent,
     LayoutSwitcherComponent,
-    LayoutSwitcherComponent,
+    SearchSwitcherComponent,
 
     PipesModule
   ]

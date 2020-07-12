@@ -4,14 +4,17 @@
   </span>
 
   <div class="search-tab">
-    <ul class="nav nav-tabs" style="height: 4.5rem; overflow-x:auto; overflow-y:hidden; display: flex;">
-      <li *ngFor="let tab of tabs; let i=index" [class.active]="(selectedTab === i)">
-        <a data-toggle="tab" (click)="onTabSelect(i)">{{ tab }}</a>
-      </li>
+    <div style="height: 4.5rem">
+      <ng-scrollbar class="my-scrollbar" trackX="true" [compact]="true" [disableOnBreakpoints]="false">
+        <ul class="nav nav-tabs" style="display:flex; margin-bottom: -5px;">
+          <li *ngFor="let tab of tabs; let i=index" [class.active]="(selectedTab === i)" id="Tab_{{i}}">
+            <a data-toggle="tab" (click)="onTabSelect(i)">{{ tab }}</a>
+          </li>
 
-      <li> <a (click)="onAddTab()"> + </a> </li>
-    </ul>
-
+          <li> <a (click)="onAddTab();"> + </a> </li>
+        </ul>
+      </ng-scrollbar>
+    </div>
     <div class="tab-content">
       <div *ngFor="let tab of tabs; let i=index" class="tab-pane fade in" [class.active]="(selectedTab === i)">
         <form>
@@ -19,7 +22,7 @@
             <div class="dropdown">
               <div style="display: flex;">
                 <input
-                  type="text" class="form-control" placeholder="search..."
+                  type="text" class="form-control" placeholder="Search..."
                   [(ngModel)]="searchTexts[i]" (keyup.enter)="onSearch(i)"
                   [ngModelOptions]="{standalone: true}"
                 /> 
@@ -33,6 +36,7 @@
                     <div class="form-check" *ngFor="let type of vehicleEventsTypes">
                       <input type="checkbox" class="form-check-input"
                         id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                        [checked]="isChecked(type, i)"
                       />
                       <label class="form-check-label check-label" for="{{type}}_{{i}}">
                         {{type}}
@@ -44,6 +48,7 @@
                     <div class="form-check" *ngFor="let type of driverEventsTypes">
                       <input type="checkbox" class="form-check-input"
                         id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                        [checked]="isChecked(type, i)"
                       />
                       <label class="form-check-label check-label" for="{{type}}_{{i}}">
                         {{type}}
@@ -55,6 +60,7 @@
                     <div class="form-check" *ngFor="let type of deviceEventsTypes">
                       <input type="checkbox" class="form-check-input"
                         id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                        [checked]="isChecked(type, i)"
                       />
                       <label class="form-check-label check-label" for="{{type}}_{{i}}">
                         {{type}}
@@ -66,7 +72,7 @@
             </div>
           </section>
 
-          <section *ngIf="searchPageNums[i]">
+          <section *ngIf="searchPageNums[i]" style="margin:5px 0 5px 0;">
             <ng-container>
               <div class="list-group">
                 <a class="list-group-item" *ngFor="let item of getItems(i)" (click)="onItemClicked(item, i)">

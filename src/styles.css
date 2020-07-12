@@ -592,7 +592,7 @@ kbd {
 }
 .search-div {
     position: absolute;
-    top: 36px;
+    top: 37px;
     right: 0;
     width: 300px;
     z-index: 902;
@@ -652,4 +652,22 @@ kbd {
 .search-div .check-label {
     padding-left: 1rem;
     margin-top: 1rem;
+}
+.nav-tabs>li.active>a,
+.nav-tabs>li.active>a:focus,
+.nav-tabs>li.active>a:hover {
+    background-color: #FEB;
+}
+
+.nav-tabs>li>a {
+    border: 1px solid #ACACAC;
+    border-bottom: none;
+}
+.search-div .list-group-item{
+    background-color: transparent;
+    border-color: transparent;
+}
+ng-scrollbar-x .ng-scrollbar-thumb {
+    bottom: -10px;
+    z-index: 9999;
 }
