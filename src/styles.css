@@ -662,6 +662,7 @@ kbd {
 .nav-tabs>li>a {
     border: 1px solid #ACACAC;
     border-bottom: none;
+    white-space: nowrap;
 }
 .search-div .list-group-item{
     background-color: transparent;
