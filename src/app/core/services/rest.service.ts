@@ -2828,18 +2828,16 @@ export class RestService {
       );
   }
 
-  public getSearchResult(query: string): Observable<SearchResult[]> {
-    if (!query) {
-      return of([]);
-    }
-
-    return this.http.get<SearchResult[]>(API_URL + `api/web/search/${query}`, authOptionsTokenized)
+  public get1000Devices(): Observable<Device[]> {
+    return this.http
+      .get<PageResult<Device>>(API_URL + `api/web/devices?limit=1000&sort=createdAt.DESC`, getHttpInterceptedOptions)
       .pipe(
         map(response => {
-          return plainToClass(SearchResult, response);
+          let paginated = plainToClassFromExist(new PageResult<Device>(Device), response);
+          return (paginated && paginated.results) || [];
         }),
         catchError((response: HttpErrorResponse) => this.handleError(response))
-      );
+      )
   }
 
   public getEventsType(query: string): Observable<string[]> {
@@ -2852,9 +2850,9 @@ export class RestService {
       );
   }
 
-  public doViewItem(item: SearchResult, filters: string[]) {
+  public doViewItem(item: any, filters: string[]) {
     let queryURL = API_URL + "api/web/"
-    switch (item.entityType){
+    switch (item.type){
       case "Vehicle":
         queryURL += 'vehicles/'; break;
       case "Driver":
@@ -2865,22 +2863,19 @@ export class RestService {
         return;
     }
     
-    queryURL += item.entityId + '/events?page=1&limit=100&sort=datetime.DESC';
+    queryURL += item.id + '/events?page=1&limit=100&sort=datetime.DESC';
 
     if(filters.length)
       for(let filter of filters)  queryURL += "&events[]=" + filter;
 
-    // let result = this.http
-    //   .get<any>(queryURL, getHttpInterceptedOptions)
-    //   .pipe(
-    //     map(response => {
-    //       console.log(response);
-    //     }),
-    //     catchError((response: HttpErrorResponse) => this.handleError(response))
-    //   )
-    let result = this.http
-      .get(queryURL, getHttpInterceptedOptions).subscribe((response: any) => console.log(response))
-    console.log(result, "result");
+    return this.http
+      .get<any>(queryURL, getHttpInterceptedOptions)
+      .pipe(
+        map(response => {
+          return response;
+        }),
+        catchError((response: HttpErrorResponse) => this.handleError(response))
+      )
   }
 
   private handleLoginError(error: HttpErrorResponse) {

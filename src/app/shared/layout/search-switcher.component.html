@@ -11,7 +11,7 @@
             <a data-toggle="tab" (click)="onTabSelect(i)">{{ tab }}</a>
           </li>
 
-          <li> <a (click)="onAddTab();"> + </a> </li>
+          <li> <a (click)="onAddTab();" id="add_tab"> + </a> </li>
         </ul>
       </ng-scrollbar>
     </div>
@@ -23,7 +23,7 @@
               <div style="display: flex;">
                 <input
                   type="text" class="form-control" placeholder="Search..."
-                  [(ngModel)]="searchTexts[i]" (keyup.enter)="onSearch(i)"
+                  [(ngModel)]="searchTexts[i]" (ngModelChange)="onSearch(i)"
                   [ngModelOptions]="{standalone: true}"
                 /> 
                 <button class="btn btn-secondary dropdown-toggle" type="button" 
@@ -76,8 +76,8 @@
             <ng-container>
               <div class="list-group">
                 <a class="list-group-item" *ngFor="let item of getItems(i)" (click)="onItemClicked(item, i)">
-                  <h5 class="list-group-item-heading">{{item.search}}</h5>
-                  <p class="list-group-item-text" style="font-size: 10px;">{{item.entityType}} - {{item.status}}</p>
+                  <h5 class="list-group-item-heading">{{item.name}}</h5>
+                  <p class="list-group-item-text" style="font-size: 10px;">{{item.description}}</p>
                 </a>
               </div>
             </ng-container>

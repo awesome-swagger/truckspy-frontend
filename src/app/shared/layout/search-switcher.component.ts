@@ -15,15 +15,19 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   isActivated:boolean;
   selectedTab:number = 0;
   tabs: Array<string> = ['Tab1'];
+  vehicle1000: Array<any> = [];
+  driver1000: Array<any> = [];
+  device1000: Array<any> = [];
   vehicleEventsTypes: Array<string> = [];
   driverEventsTypes: Array<string> = [];
   deviceEventsTypes: Array<string> = [];
   selectedEventsTypes: Array<Array<string>> =[[]];
 
   searchTexts: Array<string> = [];
-  searchResults: Array<SearchResult[]> = [];
+  searchResults: Array<any[]> = [];
   currentPageNums: Array<number> = [1];
-  searchPageNums: Array<number> = [0]; 
+  searchPageNums: Array<number> = [0];
+  searchResultStates: Array<boolean> = [];
   
   @ViewChild(NgScrollbar) scrollbarRef: NgScrollbar;
 
@@ -40,7 +44,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     this.layoutService.searchUpdated.subscribe(active =>{
       this.isActivated = active;
     });
-    
+
     this.getEventTypes();
   }
 
@@ -49,7 +53,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit(){
-    
+    this.getDataForSearch();
   }
 
   onToggle() {
@@ -67,30 +71,71 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     this.tabs.push(`Tab${newTab+1}`);
     this.selectedTab = newTab;
     this.selectedEventsTypes[newTab] = [];
+
+    this.scrollbarRef.scrollToElement("#add_tab");
   }
 
   getEventTypes() {
     this.restService.getEventsType("vehicleevents")
-    .subscribe(data=>this.vehicleEventsTypes = data);
+    .subscribe(data=>this.vehicleEventsTypes = data.filter(item=>item !== "UNKNOWN" && item !== "DRIVE_ALERT_VIDEO"));
 
     this.restService.getEventsType("driverevents")
-    .subscribe(data=>this.driverEventsTypes = data);
+    .subscribe(data=>this.driverEventsTypes = data.filter(item=>item !== "UNKNOWN"));
 
     this.restService.getEventsType("deviceevents")
-    .subscribe(data=>this.deviceEventsTypes = data);
+    .subscribe(data=>this.deviceEventsTypes = data.filter(item=>item !== "UNKNOWN"));
+  }
+
+  getDataForSearch() {    
+    this.restService.get1000Vehicles().subscribe(
+      data => this.vehicle1000 = data
+    );
+    this.restService.get1000ActiveDrivers().subscribe(
+      data => this.driver1000 = data
+    );
+    this.restService.get1000Devices().subscribe(
+      data => this.device1000 = data
+    );
   }
 
   onSearch( index ) {
-    this.restService.getSearchResult(this.searchTexts[index])
-    .subscribe(
-      data => {
-        this.searchResults[index] = data.filter(result=>
-          ['Vehicle', 'Driver', 'Device'].includes(result.entityType)
-        );
-        this.currentPageNums[index] = 1;
-        this.searchPageNums[index] = Math.ceil(data.length/5);
-      }
-    );
+    const text = this.searchTexts[index];
+    this.searchResults[index] = [];
+    this.searchResultStates[index] = false;
+
+    this.vehicle1000.forEach(vehicle => {
+      if (vehicle.reportingProfile.name.indexOf(text)>-1)
+        this.searchResults[index].push({
+          id: vehicle.id, 
+          name: vehicle.reportingProfile.name,
+          type: "Vehicle",
+          description: `Vehicle - ${vehicle.status}`,
+        });
+    });
+    
+    this.driver1000.forEach(driver => {
+      if ((driver.firstName && driver.firstName.indexOf(text)>-1) 
+          || (driver.lastName && driver.lastName.indexOf(text)>-1))
+        this.searchResults[index].push({
+          id: driver.id, 
+          name: `${driver.firstName} ${driver.lastName}`,
+          type: "Driver",
+          description: `Driver - ${driver.status}`,
+        });
+    });
+
+    this.device1000.forEach(device => {
+      if (device.reportingProfile.name.indexOf(text)>-1)
+        this.searchResults[index].push({
+          id: device.id, 
+          name: device.reportingProfile.name,
+          type: "Device",
+          description: `Device - ${device.type}`,
+        });
+    });
+
+    this.currentPageNums[index] = 1;
+    this.searchPageNums[index] = Math.ceil(this.searchResults[index].length / 5);
   }
 
   onTypeChecked(e, type, tabIndex) {
@@ -120,7 +165,22 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   }
 
   onItemClicked(item, index) {
-    this.tabs[index] = item.search;
-    this.restService.doViewItem(item, this.selectedEventsTypes[index]);
+    if (this.searchResultStates[index]) return;
+
+    this.tabs[index] = item.name;
+    this.searchResultStates[index] = true;
+    this.searchResults[index] = [];
+
+    this.restService.doViewItem(item, this.selectedEventsTypes[index]).subscribe(
+      data => {
+        data.results.forEach(({datetime, textualLocation})=>
+          this.searchResults[index].push({name: textualLocation, description: datetime})
+        );
+    
+        this.currentPageNums[index] = 1;
+        this.searchPageNums[index] = Math.ceil(this.searchResults[index].length / 5);
+      }
+    );
+
   }
 }
