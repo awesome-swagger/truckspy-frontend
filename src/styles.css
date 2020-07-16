@@ -633,10 +633,16 @@ kbd {
 .search-div .tab-content {
     padding: 5px;
     border-top: 1px solid;
+    height: 90%;
+    background-color: #EFEFEF;
 }
 .search-div .tab-content .dropdown-menu {
     width: 200px;
     animation: none;
+}
+.search-div .tab-content #dropdownFilter {
+    background-color: #646464;
+    color: #EFEFEF;
 }
 .search-div .nav-tabs::-webkit-scrollbar {
     height: 10px;

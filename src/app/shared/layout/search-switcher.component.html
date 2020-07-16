@@ -27,11 +27,11 @@
                   [ngModelOptions]="{standalone: true}"
                 /> 
                 <button class="btn btn-secondary dropdown-toggle" type="button" 
-                  id="dropdownMenu" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false"
+                  id="dropdownFilter" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false"
                 >
                   <i class="fa fa-filter" aria-hidden="true"></i>
                 </button>              
-                <div class="dropdown-menu dropdown-menu-right dropdown-pad" aria-labelledby="dropdownMenu">
+                <div class="dropdown-menu dropdown-menu-right dropdown-pad" aria-labelledby="dropdownFilter">
                   <form class="px-4 py-3">                  
                     <div class="form-check" *ngFor="let type of vehicleEventsTypes">
                       <input type="checkbox" class="form-check-input"
