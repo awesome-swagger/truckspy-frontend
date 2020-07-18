@@ -15,6 +15,8 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
   isActivated:boolean;
   selectedTab:number = 0;
   tabs: Array<string> = ['Tab1'];
+  closeIcons: Array<boolean>=[false];
+  
   vehicle1000: Array<any> = [];
   driver1000: Array<any> = [];
   device1000: Array<any> = [];
@@ -62,6 +64,27 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     this.layoutService.onLayoutActivate(false);
   }
 
+  onMouseEnter(index: number) {
+    this.closeIcons[index] = true;
+  }
+  onMouseLeave(index: number) {
+    this.closeIcons[index] = false;
+  }
+  showCloseIcon(index: number) {
+    if(this.tabs.length === 1) return false;
+    return this.closeIcons[index];
+  }
+  onCloseTab(index: number) {
+    this.tabs.splice(index, 1);
+    this.searchTexts.splice(index, 1);
+    this.searchResults.splice(index, 1);
+    this.currentPageNums.splice(index, 1);
+    this.searchPageNums.splice(index, 1);
+    this.searchResultStates.splice(index, 1);
+
+    this.selectedTab = index ? index-1 : 0;;
+  }
+
   onTabSelect(index) {
     this.selectedTab = index;
   }
@@ -102,6 +125,7 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
     const text = this.searchTexts[index];
     this.searchResults[index] = [];
     this.searchResultStates[index] = false;
+    if(text.trim()==="") return;
 
     this.vehicle1000.forEach(vehicle => {
       if (vehicle.reportingProfile.name.indexOf(text)>-1)
@@ -181,6 +205,5 @@ export class SearchSwitcherComponent implements OnInit, OnDestroy {
         this.searchPageNums[index] = Math.ceil(this.searchResults[index].length / 5);
       }
     );
-
   }
 }

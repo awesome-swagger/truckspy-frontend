@@ -603,7 +603,17 @@ kbd {
 }
 .search-div.activate #searching + .search-tab {
     display: block;
-    height: 50vh;
+    /* height: 50vh; */
+}
+.close-tab {
+    position: absolute;
+    top: 0;
+    right:0;
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+.close-tab i:before {
+    content: "\f00d";
 }
 .search-div>span {
     position: absolute;

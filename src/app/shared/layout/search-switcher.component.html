@@ -7,8 +7,11 @@
     <div style="height: 4.5rem; border-left: 1px solid">
       <ng-scrollbar class="my-scrollbar" trackX="true" [compact]="true" [disableOnBreakpoints]="false">
         <ul class="nav nav-tabs" style="display:flex; margin-bottom: -5px;">
-          <li *ngFor="let tab of tabs; let i=index" [class.active]="(selectedTab === i)" id="Tab_{{i}}">
-            <a data-toggle="tab" (click)="onTabSelect(i)">{{ tab }}</a>
+          <li *ngFor="let tab of tabs; let i=index" [class.active]="(selectedTab === i)" id="Tab_{{i}}"  (mouseenter)="onMouseEnter(i)" (mouseleave)="onMouseLeave(i)">
+            <a data-toggle="tab" (click)="onTabSelect(i)">
+              {{ tab }}
+            </a>
+            <span *ngIf="showCloseIcon(i)" class="close-tab" (click)="onCloseTab(i)"><i class="fa fa-clock-o"></i></span>
           </li>
 
           <li> <a (click)="onAddTab();" id="add_tab"> + </a> </li>
@@ -72,30 +75,32 @@
             </div>
           </section>
 
-          <section *ngIf="searchPageNums[i]" style="margin:5px 0 5px 0;">
-            <ng-container>
-              <div class="list-group">
-                <a class="list-group-item" *ngFor="let item of getItems(i)" (click)="onItemClicked(item, i)">
-                  <h5 class="list-group-item-heading">{{item.name}}</h5>
-                  <p class="list-group-item-text" style="font-size: 10px;">{{item.description}}</p>
-                </a>
+          <div style="margin:10px 0 40px 0; height: 40vh; overflow: auto;">
+            <section *ngIf="searchPageNums[i]">
+              <ng-container>
+                <div class="list-group">
+                  <a class="list-group-item" *ngFor="let item of getItems(i)" (click)="onItemClicked(item, i)">
+                    <h5 class="list-group-item-heading"  style="font-size: 1.5rem;">{{item.name}}</h5>
+                    <p class="list-group-item-text" style="font-size: 1rem">{{item.description}}</p>
+                  </a>
+                </div>
+              </ng-container>
+              <div style="position: absolute; bottom: 10px; right: 15px">
+                <ngb-pagination 
+                    [boundaryLinks]="false" 
+                    [collectionSize]="searchResults[i].length" 
+                    [(page)]="currentPageNums[i]"
+                    [pageSize]="5" [maxSize]="2" [rotate]="true" [ellipses]="true" size="sm"
+                    (pageChange)="onChangePage($event, i)" 
+                    aria-label="Default pagination"
+                    class="pagination-no-margin"
+                >
+                    <ng-template ngbPaginationPrevious> << </ng-template>
+                    <ng-template ngbPaginationNext>     >> </ng-template>
+                </ngb-pagination>
               </div>
-            </ng-container>
-            <div style="position: absolute; bottom: 10px; right: 15px">
-              <ngb-pagination 
-                  [boundaryLinks]="false" 
-                  [collectionSize]="searchResults[i].length" 
-                  [(page)]="currentPageNums[i]"
-                  [pageSize]="5" [maxSize]="2" [rotate]="true" [ellipses]="true" size="sm"
-                  (pageChange)="onChangePage($event, i)" 
-                  aria-label="Default pagination"
-                  class="pagination-no-margin"
-              >
-                  <ng-template ngbPaginationPrevious> << </ng-template>
-                  <ng-template ngbPaginationNext>     >> </ng-template>
-              </ngb-pagination>
-            </div>
-          </section>
+            </section>
+          </div>
         </form>
       </div>
     </div>
