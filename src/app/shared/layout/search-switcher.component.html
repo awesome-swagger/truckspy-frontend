@@ -28,49 +28,56 @@
                   type="text" class="form-control" placeholder="Search..."
                   [(ngModel)]="searchTexts[i]" (ngModelChange)="onSearch(i)"
                   [ngModelOptions]="{standalone: true}"
-                /> 
-                <button class="btn btn-secondary dropdown-toggle" type="button" 
-                  id="dropdownFilter" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false"
-                >
-                  <i class="fa fa-filter" aria-hidden="true"></i>
-                </button>              
-                <div class="dropdown-menu dropdown-menu-right dropdown-pad" aria-labelledby="dropdownFilter">
-                  <form class="px-4 py-3">                  
-                    <div class="form-check" *ngFor="let type of vehicleEventsTypes">
-                      <input type="checkbox" class="form-check-input"
-                        id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
-                        [checked]="isChecked(type, i)"
-                      />
-                      <label class="form-check-label check-label" for="{{type}}_{{i}}">
-                        {{type}}
-                      </label>
-                    </div>
-                  </form>
-                  <div class="dropdown-divider"></div>
-                  <form class="px-4 py-3">                  
-                    <div class="form-check" *ngFor="let type of driverEventsTypes">
-                      <input type="checkbox" class="form-check-input"
-                        id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
-                        [checked]="isChecked(type, i)"
-                      />
-                      <label class="form-check-label check-label" for="{{type}}_{{i}}">
-                        {{type}}
-                      </label>
-                    </div>
-                  </form>
-                  <div class="dropdown-divider"></div>
-                  <form class="px-4 py-3">                  
-                    <div class="form-check" *ngFor="let type of deviceEventsTypes">
-                      <input type="checkbox" class="form-check-input"
-                        id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
-                        [checked]="isChecked(type, i)"
-                      />
-                      <label class="form-check-label check-label" for="{{type}}_{{i}}">
-                        {{type}}
-                      </label>
-                    </div>
-                  </form>
-                </div>
+                />
+                <div class="btn-group" dropdown placement="bottom right" [insideClick]="true">
+                  <button id="button-alignment" dropdownToggle type="button"
+                          class="btn btn-primary dropdown-toggle" aria-controls="dropdown-alignment">
+                    <i class="fa fa-filter" aria-hidden="true"></i>
+                  </button>
+                  <ul id="dropdown-alignment" *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-pad" role="menu" aria-labelledby="button-alignment">
+                    <li role="menuitem">
+                      <form class="px-4 py-3">                  
+                        <div class="form-check" *ngFor="let type of vehicleEventsTypes">
+                          <input type="checkbox" class="form-check-input"
+                            id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                            [checked]="isChecked(type, i)"
+                          />
+                          <label class="form-check-label check-label" for="{{type}}_{{i}}">
+                            {{type}}
+                          </label>
+                        </div>
+                      </form>
+                    </li>
+                    <li class="divider dropdown-divider"></li>
+                    <li role="menuitem">
+                      <form class="px-4 py-3">                  
+                        <div class="form-check" *ngFor="let type of driverEventsTypes">
+                          <input type="checkbox" class="form-check-input"
+                            id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                            [checked]="isChecked(type, i)"
+                          />
+                          <label class="form-check-label check-label" for="{{type}}_{{i}}">
+                            {{type}}
+                          </label>
+                        </div>
+                      </form>
+                    </li>
+                    <li class="divider dropdown-divider"></li>
+                    <li role="menuitem">
+                      <form class="px-4 py-3">                  
+                        <div class="form-check" *ngFor="let type of deviceEventsTypes">
+                          <input type="checkbox" class="form-check-input"
+                            id="{{type}}_{{i}}" (change)="onTypeChecked($event, type, i)"
+                            [checked]="isChecked(type, i)"
+                          />
+                          <label class="form-check-label check-label" for="{{type}}_{{i}}">
+                            {{type}}
+                          </label>
+                        </div>
+                      </form>
+                    </li>
+                  </ul>
+                </div>            
               </div>
             </div>
           </section>

@@ -2867,6 +2867,8 @@ export class RestService {
 
     if(filters.length)
       for(let filter of filters)  queryURL += "&events[]=" + filter;
+    else
+      queryURL += "&events[]=null";
 
     return this.http
       .get<any>(queryURL, getHttpInterceptedOptions)

@@ -14,7 +14,6 @@ import {
   PopoverModule
 } from "ngx-bootstrap";
 
-
 @NgModule({
   imports: [
     CommonModule,
