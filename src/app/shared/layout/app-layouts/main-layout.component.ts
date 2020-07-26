@@ -1,6 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import { routerTransition } from "@app/shared/utils/animations";
 
+import { Store } from '@ngrx/store';
+import { AuthState, getUser } from '@app/core/store/auth';
+import { plainToClass } from 'class-transformer';
+import { User } from '@app/core/services/rest.model';
+
 @Component({
   selector: "app-main-layout",
   templateUrl: "./main-layout.component.html",
@@ -8,9 +13,16 @@ import { routerTransition } from "@app/shared/utils/animations";
   animations: [routerTransition]
 })
 export class MainLayoutComponent implements OnInit {
-  constructor() {}
+  user: User;
 
-  ngOnInit() {}
+  constructor(
+    private store: Store<AuthState> ) {}
+
+  ngOnInit() {
+    this.store.select(getUser).subscribe((user: any) => {
+      this.user = plainToClass(User, user as User);
+    });
+  }
 
   getState(outlet) {
     if(!outlet.activatedRoute) return;

@@ -4,7 +4,7 @@
 
 <div id="main" role="main" [@routerTransition]="getState(o)">
 
-  <sa-search-switcher></sa-search-switcher>
+  <sa-search-switcher *ngIf="!user.isAdmin()"></sa-search-switcher>
   <sa-layout-switcher></sa-layout-switcher>
 
   <sa-ribbon></sa-ribbon>

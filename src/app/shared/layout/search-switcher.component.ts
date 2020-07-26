@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy, ViewChild, AfterViewInit} from '@angular/core';
 import {config} from '@app/core/smartadmin.config';
 import {LayoutService} from '@app/core/services/layout.service';
-import { RestService, SearchResult } from '@app/core/services';
+import { RestService, SearchResult} from '@app/core/services';
 import { Subscription } from 'rxjs';
 import { NgScrollbar } from 'ngx-scrollbar';
 
