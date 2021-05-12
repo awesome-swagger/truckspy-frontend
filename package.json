@@ -49,7 +49,7 @@
     "class-transformer": "^0.2.0",
     "classlist.js": "^1.1.20150312",
     "clockpicker": "0.0.7",
-    "codemirror": "^5.38.0",
+    "codemirror": "^5.58.2",
     "core-js": "^2.5.4",
     "cropperjs": "^1.4.0",
     "debounce": "1.1.0",
